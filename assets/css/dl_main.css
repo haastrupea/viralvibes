@@ -1,0 +1,139 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+body{
+    color: #661052;
+    /* color: #ee06b7ff; */
+    font-family: 'Courier New', Courier, monospace;
+}
+a{
+    text-decoration: none !important;
+    outline: none;
+}
+ul{
+list-style: none;
+}
+.fixed{
+    position: fixed;
+    width: 100%;
+}
+.fixed-inner{
+    background: white;
+    margin-bottom: 2px;
+    padding:20px 0;
+    padding-left: 15px;
+}
+
+.content{
+    background-color: aliceblue;
+    padding-top:75px;
+    padding-bottom:15px;
+    padding-right: 15px;
+    height: 100vh;
+}
+
+aside{
+    position: fixed;
+    height: 100%;
+    width: 300px;
+    left: 15px;
+    /* overflow-y: scroll; */
+}
+
+aside>ul>li{
+    background-color: white;
+    margin-bottom: 10px;
+}
+.nav-menu>li{
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+.nav-menu>li>a{
+    padding:10px 0 10px 20px ;
+    display: block;
+    background-color: #661052;
+    color: white;
+    text-transform: uppercase;
+    transition: background-color .3s,color .5s;
+}
+
+.nav-menu>li>a:not(.active):hover,
+.nav-menu>li>a.active
+{
+background-color: #c039a0;
+color: white;
+}
+
+
+.nav-menu>li>a i::before{
+line-height: 1.4;
+}
+.nav-menu>li>a:not(.active) .fa-angle-down,
+.nav-menu>li>a.active .fa-angle-right{
+display: none;
+}
+
+.nav-menu .sub-menu{
+    text-transform: capitalize;
+    padding: 10px 0;
+}
+.nav-menu .sub-menu li{
+    margin: 5px;
+    margin-left: 50px;
+}
+
+.nav-menu .sub-menu li a{
+    color: inherit;
+    display: block;
+    padding: 5px 0;
+    position: relative;
+}
+.nav-menu .sub-menu li a::before{
+
+}
+.nav-menu .sub-menu li a::after{
+ 
+}
+.nav-menu .sub-menu li a::before,
+.nav-menu .sub-menu li a::after{
+    content: ' ';
+    position: absolute;
+    display: block;
+    top: 0;
+    background-image: linear-gradient(90deg, red 0%,blue 100%);;
+    transition: all .5s;
+    width: 0;
+    opacity: 0;
+    height: 100%;
+}
+.nav-menu .sub-menu li:hover a:not(.active)::before{
+    width: 100%;
+    opacity: .5;
+}
+.nav-menu .sub-menu li:hover a:not(.active)::after{
+
+}
+.nav-menu .sub-menu a.active{
+border-bottom: 1px solid rgba(0, 0, 0, .2);
+color: #c039a0;
+}
+
+
+.side-ads{
+    height: 200px;
+    text-align: center;
+    line-height: 13;
+    text-transform: capitalize;
+}
+.content section{
+    width: 100%;
+    height: 100%;
+    padding-left:330px;
+}
+.main-content{
+    background-color: white;
+    height: 100%;
+    /* border: 1px solid rgba(253, 214, 243,.9); */
+}
