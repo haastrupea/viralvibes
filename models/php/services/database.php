@@ -17,7 +17,8 @@ class database{
     public function getConnection(){
             return $this->dbconnection;
     }
-    public function selectData($query,array $param=null,$fetchStyle=\PDO::FETCH_ASSOC){    
+    
+    public function queryDb($query,array $param=null,$fetchStyle=\PDO::FETCH_ASSOC){    
         $qry=$this->dbconnection->prepare($query);
         if(is_null($param)){
             $qry->execute();
@@ -25,6 +26,7 @@ class database{
             $qry->execute($param);
         }
 
+        //return result if any
         return $qry->fetchAll($fetchStyle);
     }
 }

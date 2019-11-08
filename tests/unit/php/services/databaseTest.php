@@ -37,7 +37,7 @@ class dataBaseTest extends TestCase{
     }
 
     public function createDbTable(){
-        $db=$this->dbConnection->getConnection();
+        $db=$this->dbConnection;
         $query="CREATE TABLE `courses` (
             `course_id` int NOT NULL,
             `institution` varchar(100) NOT NULL,
@@ -56,10 +56,10 @@ class dataBaseTest extends TestCase{
             `name_is_acronym` TINYINT(1) NOT NULL DEFAULT '0',
             PRIMARY KEY (`course_id`)
           );";
-          $db->query($query);
+          $db->queryDb($query);
     }
     public function buildDataSet(){
-        $db=$this->dbConnection->getConnection();
+        $db=$this->dbConnection;
         $query="INSERT INTO `courses` (`course_id`, `institution`, `course_code`, `course_title`, `department`, `session`, `semester`, `view_count`, `published`, `when_added`, `last_update`, `description`, `course_type`, `course_unit`, `name_is_acronym`) VALUES
         (1, 'Obafemi Awolowo University', 'SEM001', 'MAN AND HIS ENVIRONMENT', 'animal science', '2018/2019', '2', 0, 1, '2019-11-01 10:47:17', '2019-11-01 10:47:17', 'no description for now', 'special elective', 2, 0),
         (2, 'obafemi Awolowo University', 'SEM002', 'man and people', 'Estate mangement', '2018/2019', '1', 0, 1, '2019-11-06 00:23:16', '2019-11-06 00:23:16', 'compostry for all student that wants to graduate', 'restricted elective', 4, 0),
@@ -67,25 +67,25 @@ class dataBaseTest extends TestCase{
         (4, 'obafemi Awolowo University', 'SEM004', 'asking question', 'a.b.c.d', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'wonder but easy to pass', 'restricted elective', 4, 0),
         (5, 'obafemi Awolowo University', 'ans301', 'introduction to ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0),
         (6, 'obafemi Awolowo University', 'ans302', 'introduction to non-ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0);";
-          $db->query($query);
+          $db->queryDb($query);
     }
 
     public function test_database_connection_throw_PDOException(){
         $this->expectException('PDOException');
-        new database($this->dbname,$this->usr,"password");
+        new database($this->dbname,"username","password");
     }
     
     public function  test_database_connected_successfully(){
-        $db=new database($this->dbname,$this->usr,$this->psw);
-        $output=$db->getConnection();
+        $output=$this->dbConnection->getConnection();
         $this->assertInstanceOf(PDO::class,$output,"The object returned is not PDO object as expected");
     }
     public function  test_swapping_database_connection(){
         $db=new database();
+        $dbold=$db->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME);
         $con=new PDO('sqlite::memory:');
         $db->swapDbConnection($con);
-        $output=$db->getConnection();
-        $this->assertInstanceOf(PDO::class,$output,"Could not connect to the swapped database");
+        $dbnew=$db->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $this->assertNotEquals($dbold,$dbnew,"Could not connect to the swapped database from:{$dbold} to: {$dbnew}");
     }
     public function  test_db_select_query(){
         $search= new search('wonder');
@@ -93,7 +93,7 @@ class dataBaseTest extends TestCase{
         $search->select('*');
         $search->buildQuery();
         $query=$search->get_sql_query_string();
-       $result=$this->dbConnection->selectData($query);
+       $result=$this->dbConnection->queryDb($query);
        $this->assertIsArray($result,"expect db_query to return array");
     }
 }
