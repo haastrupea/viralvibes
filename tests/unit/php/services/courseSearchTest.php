@@ -4,7 +4,6 @@ require dirname(__FILE__,5).DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'au
 require dirname(__FILE__,5).DIRECTORY_SEPARATOR. 'models'. DIRECTORY_SEPARATOR. 'php'.DIRECTORY_SEPARATOR. 'services'.DIRECTORY_SEPARATOR.'courseSearch.php';
 
 use PDO;
-use PDOStatement;
 use Viralvibes\Download\course\search;
 use PHPUnit\Framework\TestCase;
 use Viralvibes\database;
@@ -49,7 +48,7 @@ class courseSearchTest extends TestCase{
             `name_is_acronym` TINYINT(1) NOT NULL DEFAULT '0',
             PRIMARY KEY (`course_id`)
           );";
-          $db->selectData($query);
+          $db->queryDb($query);
     }
 
     public function buildDataSet(){
@@ -61,7 +60,7 @@ class courseSearchTest extends TestCase{
         (4, 'obafemi Awolowo University', 'SEM004', 'asking question', 'a.b.c.d', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'wonder but easy to pass', 'restricted elective', 4, 0),
         (5, 'obafemi Awolowo University', 'ans301', 'introduction to ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0),
         (6, 'obafemi Awolowo University', 'ans302', 'introduction to non-ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0);";
-          $db->selectData($query);
+          $db->queryDb($query);
     }
 
     public function test_student_search_for_a_course_material(){
@@ -177,7 +176,6 @@ class courseSearchTest extends TestCase{
     public function test_set_search_result_limit()
     {
         $search= new search();
-        $search->setDbconnection($this->dbConnection);
         $output=$search->setResultLimit(3);
         $this->assertEquals('3',$output,'Total number of search expected is limited to 3');
     }
@@ -185,7 +183,6 @@ class courseSearchTest extends TestCase{
     public function test_set_search_result_offset()
     {
         $search= new search();
-        $search->setDbconnection($this->dbConnection);
         $output=$search->setOffset(2);
         $this->assertEquals('2',$output,'search result expected is offset by 2');
     }
@@ -193,7 +190,6 @@ class courseSearchTest extends TestCase{
     public function test_build_sql_search_query(){
         //create instance of search
         $search= new search('sem001');
-        $search->setDbconnection($this->dbConnection);
         //select all column
         $search->select('*');
         //filter
@@ -245,7 +241,7 @@ class courseSearchTest extends TestCase{
             ['monday','0','no result found'],
         ];
     }
-    
+
     public function test_return_Course_Search_Result_as_json(){
         $search=new search('sem001');
         $search->setDbconnection($this->dbConnection);

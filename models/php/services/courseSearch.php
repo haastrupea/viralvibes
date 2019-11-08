@@ -40,7 +40,7 @@ class search{
     public function getResultAsArray()
     {
         if(!empty($this->sql_query_string)){
-            $this->searchResult=$this->dbcon->selectData($this->sql_query_string,$this->sql_param_arr);
+            $this->searchResult=$this->dbcon->queryDb($this->sql_query_string,$this->sql_param_arr);
             return $this->searchResult;
         }
     }
