@@ -9,16 +9,17 @@ class search{
     protected $sql_query_arr=[];
     protected $sql_param_arr=[];
     protected $sql_query_string='';
-    protected $searchResult;
 
     public function __construct(String $search=''){
         if(!empty($search)){
             $this->searchTerm=$search;
         }
     }
+
     public function setDbconnection(database $connection){
         $this->dbcon=$connection;
     }
+
     public function getSearchTerm(){
         if(!empty($this->searchTerm)){
             return $this->searchTerm;
@@ -40,8 +41,7 @@ class search{
     public function getResultAsArray()
     {
         if(!empty($this->sql_query_string)){
-            $this->searchResult=$this->dbcon->queryDb($this->sql_query_string,$this->sql_param_arr);
-            return $this->searchResult;
+           return $this->dbcon->queryDb($this->sql_query_string,$this->sql_param_arr);
         }
     }
     public function getResultAsJson()
@@ -60,10 +60,18 @@ class search{
         }
         return $this->sql_query_arr['select'];
     }
-    public function sortResultBy($column)
+    public function sortResultBy($orderBy)
     {
-        $this->sql_query_arr['sortby']=$column;
-        return $this->sql_query_arr['sortby'];
+        switch (strtolower($orderBy)) {
+            case 'date':
+                $this->sql_query_arr['sortby']='when_added';
+                return $this->sql_query_arr['sortby'];
+                break;
+            case 'views':
+                $this->sql_query_arr['sortby']='view_count';
+                return $this->sql_query_arr['sortby'];
+                break;
+        }
     }
     public function sortDirection($direction)
     {

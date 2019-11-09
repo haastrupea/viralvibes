@@ -110,11 +110,11 @@ class courseSearchTest extends TestCase{
      /**
      * @dataProvider sortResultByProvider
      */
-    public function test_sort_result_by($column,$msg)
+    public function test_sort_result_by($orderby,$expected,$msg)
     {
         $search=new search();
-        $output=$search->sortResultBy($column);
-        $this->assertEqualsIgnoringCase($column,$output,$msg);
+        $output=$search->sortResultBy($orderby);
+        $this->assertEqualsIgnoringCase($expected,$output,$msg);
     }
 
      /**
@@ -123,7 +123,8 @@ class courseSearchTest extends TestCase{
     public function sortResultByProvider()
     {
         return [
-            'Date'=>['date',"Expecting result order by the date the courses were added"]
+            'Date'=>['date','when_added',"Expecting result order by the date the courses were added"],
+            'views'=>['views','view_count',"Expecting result order by the views the courses were added"]
         ];
     }
 
@@ -195,7 +196,7 @@ class courseSearchTest extends TestCase{
         //filter
         $search->setSqlfilter('institution','Obafemi Awolowo University');
         //sort
-        $search->sortResultBy('when_added');
+        $search->sortResultBy('date');
         //sort direction
         $search->sortDirection('ASC');
         //limit result to 3
