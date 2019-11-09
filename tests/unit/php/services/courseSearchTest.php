@@ -123,7 +123,7 @@ class courseSearchTest extends TestCase{
     public function sortResultByProvider()
     {
         return [
-            ['date',"Expecting order by 'date' i.e the date the courses were added"]
+            'Date'=>['date',"Expecting result order by the date the courses were added"]
         ];
     }
 
@@ -144,8 +144,8 @@ class courseSearchTest extends TestCase{
     public function sortResultProvider()
     {
        return [
-           ['ASC',"Expecting ASC i.e sort in ASCending order"],
-           ['DESC',"Expecting DESC i.e sort in DESCending order"]
+           'Ascending'=>['ASC',"Expecting ASC i.e sort in ASCending order"],
+           'Descending'=>['DESC',"Expecting DESC i.e sort in DESCending order"]
        ];
     }
 
