@@ -27,7 +27,7 @@ namespace peter\paul\adeoti;
 //     exit;
 
 print_r(\PDO::getAvailableDrivers());
-
+// echo password_hash('Undercover',PASSWORD_DEFAULT);
     ?>
 </body>
 </html>
