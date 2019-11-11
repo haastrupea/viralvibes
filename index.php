@@ -1,5 +1,5 @@
 <?php
-namespace peter\paul\adeoti;
+// namespace peter\paul\adeoti;
 // ini_set('allow_url_fopen','1');
 ?>
 <!DOCTYPE html>
@@ -26,8 +26,11 @@ namespace peter\paul\adeoti;
 //     // readfile($file);
 //     exit;
 
-print_r(\PDO::getAvailableDrivers());
+// print_r(\PDO::getAvailableDrivers());
 // echo password_hash('Undercover',PASSWORD_DEFAULT);
+$me=[];
+$arr=$me["word"]['life'];
+print_r(empty($arr));
     ?>
 </body>
 </html>
