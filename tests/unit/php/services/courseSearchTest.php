@@ -22,6 +22,8 @@ class courseSearchTest extends TestCase{
         $this->createDbTable();
         //populate the tables
         $this->buildDataSet();
+        $this->search= new search();
+        $this->search->setDbconnection($db);
     }
 
     public function tearDown():void{
@@ -31,7 +33,7 @@ class courseSearchTest extends TestCase{
     public function createDbTable(){
         $db=$this->dbConnection;
         $query="CREATE TABLE `courses` (
-            `course_id` int NOT NULL,
+            `id` int NOT NULL,
             `institution` varchar(100) NOT NULL,
             `course_code` varchar(10) NOT NULL,
             `course_title` varchar(100) NOT NULL,
@@ -46,14 +48,14 @@ class courseSearchTest extends TestCase{
             `course_type` varchar(50) NOT NULL,
             `course_unit` int NOT NULL,
             `name_is_acronym` TINYINT(1) NOT NULL DEFAULT '0',
-            PRIMARY KEY (`course_id`)
+            PRIMARY KEY (`id`)
           );";
           $db->queryDb($query);
     }
 
     public function buildDataSet(){
         $db=$this->dbConnection;
-        $query="INSERT INTO `courses` (`course_id`, `institution`, `course_code`, `course_title`, `department`, `session`, `semester`, `view_count`, `published`, `when_added`, `last_update`, `description`, `course_type`, `course_unit`, `name_is_acronym`) VALUES
+        $query="INSERT INTO `courses` (`id`, `institution`, `course_code`, `course_title`, `department`, `session`, `semester`, `view_count`, `published`, `when_added`, `last_update`, `description`, `course_type`, `course_unit`, `name_is_acronym`) VALUES
         (1, 'Obafemi Awolowo University', 'SEM001', 'MAN AND HIS ENVIRONMENT', 'animal science', '2018/2019', '2', 0, 1, '2019-11-01 10:47:17', '2019-11-01 10:47:17', 'no description for now', 'special elective', 2, 0),
         (2, 'obafemi Awolowo University', 'SEM002', 'man and people', 'Estate mangement', '2018/2019', '1', 0, 1, '2019-11-06 00:23:16', '2019-11-06 00:23:16', 'compostry for all student that wants to graduate', 'restricted elective', 4, 0),
         (3, 'obafemi Awolowo University', 'seroo1', 'introduction to English', 'all department', NULL, NULL, 0, 1, '2019-11-06 00:23:16', '2019-11-06 00:23:16', '', 'special elective', 0, 0),
@@ -70,51 +72,51 @@ class courseSearchTest extends TestCase{
     }
 
     public function test_search_courses_without_keyword(){
-        $search=new search("");
-        $output=$search->getSearchTerm();
+        $output=$this->search->getSearchTerm();
         $this->assertFalse($output,"was expecting no search term");      
     }
 
-    public function test_database_empty_sql_query_array()
+    public function test_empty_database_query_array()
     {
-        $search=new search();
-        $output=$search->sql_query_array();
+        $output=$this->search->sql_query_array();
         $this->assertEmpty($output,"Expecting the query array to be empty");
 
     }
 
-    public function test_return_all_column_from_course_table()
+    /**
+     * @dataProvider selectColumnProvider
+     */
+    public function test_column_to_select_from_course_table($col,$expected)
     {
-        $search=new search();
-        $output=$search->select('*');
-        $this->assertEqualsIgnoringCase('select * from courses',$output,"Expecting select * from courses");
+        $this->search->select($col);
+        $this->search->buildQuery();       
+        $output=$this->search->get_sql_query_string(); 
+        $this->assertStringContainsStringIgnoringCase($expected,$output,"Expecting {$expected} column(s)");
 
     }
 
-    public function test_return_specified_column_from_course_table()
+    public function selectColumnProvider()
     {
-        $search=new search();
-        $output=$search->select('course_id,institution,course_code,department');
-        $this->assertEqualsIgnoringCase('select course_id,institution,course_code,department from courses',$output,"Expecting select course_id,institution,course_code,department from courses");
-
-    }
-
-    public function test_specify_column_to_return_as_array()
-    {
-        $search=new search();
-        $output=$search->select(['course_id','institution']);
-        $this->assertEqualsIgnoringCase('select course_id,institution from courses',$output,"Expecting select course_id,institution, from courses");
-
+        return [
+            'select all column'=>[['*'],'*'],
+            'select course id,institution,course_code and department columns as array'=>[['id,institution,course_code,department'],'id,institution,course_code,department'],
+            'select id column as array'=>[['id'],'id'],
+        ];
     }
 
      /**
      * @dataProvider sortResultByProvider
      */
-    public function test_sort_result_by($orderby,$expected,$msg)
+    public function test_sort_result_by($orderby,$expected)
     {
-        $search=new search();
-        $output=$search->sortResultBy($orderby);
-        $this->assertEqualsIgnoringCase($expected,$output,$msg);
+        $this->search->sortResultBy($orderby);
+        //build search string
+        $this->search->select();
+        $this->search->buildQuery();       
+        $output=$this->search->get_sql_query_string();       
+        $output2=$this->search->get_sql_query_param_array();       
+        $this->assertStringContainsStringIgnoringCase(':sortby',$output,"Expect query string to contain :sortby");
+        $this->assertEquals($expected,$output2[':sortby'],"Expect sql_query_param_array[':sortby'] to equal {$expected}");
     }
 
      /**
@@ -123,8 +125,9 @@ class courseSearchTest extends TestCase{
     public function sortResultByProvider()
     {
         return [
-            'Date'=>['date','when_added',"Expecting result order by the date the courses were added"],
-            'views'=>['views','view_count',"Expecting result order by the views the courses were added"]
+            'Date'=>['date','when_added'],
+            'views'=>['views','view_count'],
+            'download'=>['download',"download"]
         ];
     }
 
@@ -133,9 +136,12 @@ class courseSearchTest extends TestCase{
      */
     public function test_sort_result_direction($direction,$msg)
     {
-        $search=new search();
-        $output=$search->sortDirection($direction);
-        $this->assertEqualsIgnoringCase($direction,$output,$msg);
+        $this->search->sortDirection($direction);
+        //build search string
+        $this->search->select();       
+        $this->search->buildQuery();       
+        $output=$this->search->get_sql_query_string();   
+        $this->assertStringContainsStringIgnoringCase($direction,$output,$msg);
 
     }
 
@@ -155,10 +161,12 @@ class courseSearchTest extends TestCase{
      */
     public function test_filter_result($filter,$filterValue,$msg)
     {
-        $search=new search();
-        $search->setSqlfilter($filter,$filterValue);
-        $output=$search->getSqlFilter($filter);
-        $this->assertEqualsIgnoringCase($filterValue,$output,$msg);
+        $this->search->setSqlfilter($filter,$filterValue);
+        //build search string
+        $this->search->select();
+        $this->search->buildQuery();       
+        $output=$this->search->getSqlFilter($filter);
+        $this->assertStringContainsStringIgnoringCase($filterValue,$output,$msg);
 
     }
 
@@ -174,25 +182,44 @@ class courseSearchTest extends TestCase{
         ];
     }
 
-    public function test_set_search_result_limit()
+    /**
+     * @dataProvider resultLimitProvider
+     */
+    public function test_set_search_result_limit($limit)
     {
-        $search= new search();
-        $output=$search->setResultLimit(3);
-        $this->assertEquals('3',$output,'Total number of search expected is limited to 3');
+        
+        $this->search->setResultLimit($limit);
+        //build search string
+        $this->search->select();     
+        $this->search->buildQuery();
+        $output=$this->search->getResultAsArray();
+        $this->assertCount($limit,$output,"search result was limited {$limit} results");
+    }
+
+    public function resultLimitProvider()
+    {
+        return [
+            'result to 3'=>[3],
+            'result to 4'=>[4],
+        ];
+
     }
 
     public function test_set_search_result_offset()
     {
-        $search= new search();
-        $output=$search->setOffset(2);
-        $this->assertEquals('2',$output,'search result expected is offset by 2');
+        $this->search->setOffset(2);
+        //build search string
+        $this->search->select();       
+        $this->search->buildQuery();
+        $output=$this->search->get_sql_query_string();
+        $this->assertStringContainsStringIgnoringCase('offset',$output,'search result was expected to contain "offset"');
     }
 
     public function test_build_sql_search_query(){
         //create instance of search
         $search= new search('sem001');
         //select all column
-        $search->select('*');
+        $search->select();       
         //filter
         $search->setSqlfilter('institution','Obafemi Awolowo University');
         //sort
@@ -203,6 +230,7 @@ class courseSearchTest extends TestCase{
         $search->setResultLimit(3);
         //offset result by 2
         $search->setOffset(2);
+        
         //build search string
         $search->buildQuery();
         $output=$search->get_sql_query_string();
@@ -226,7 +254,7 @@ class courseSearchTest extends TestCase{
          $search= new search($searchTerm);
          $search->setDbconnection($this->dbConnection);
          //select all column
-         $search->select('*');
+         $search->select();
          //build search string
          $search->buildQuery();
          $output=$search->getResultAsArray();
@@ -239,7 +267,7 @@ class courseSearchTest extends TestCase{
     {
         return [
             ['','6','expect to return all the courses in the database as array when there is no search term and filter'],
-            ['monday','0','no result found'],
+            ['monday','0','expected no result to be found'],
         ];
     }
 
@@ -247,10 +275,9 @@ class courseSearchTest extends TestCase{
         $search=new search('sem001');
         $search->setDbconnection($this->dbConnection);
         //select all column
-        $search->select('*');
+        $search->select();
         //build search string
         $search->buildQuery();
-
         $output=$search->getResultAsJson();
         $this->assertJson($output,'was expecting search result in array');
     }

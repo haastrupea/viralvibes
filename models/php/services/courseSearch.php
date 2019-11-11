@@ -9,6 +9,7 @@ class search{
     protected $sql_query_arr=[];
     protected $sql_param_arr=[];
     protected $sql_query_string='';
+    protected $sql_query_table='courses';
 
     public function __construct(String $search=''){
         if(!empty($search)){
@@ -49,27 +50,27 @@ class search{
         $arrayResult=$this->getResultAsArray();
         return json_encode($arrayResult);
     }
-    public function select($column)
+    public function select(array $column=['*'])
     {
-        if(is_string($column)){
-            $this->sql_query_arr['select']="select {$column} from courses";
+        $column=implode(',',$column);
+        if(empty($this->sql_query_arr['select']['columns'])){
+            $this->sql_query_arr['select']['columns']=$column;
+        }else{  
+            $this->sql_query_arr['select']['columns'].=$column;
         }
-        if(is_array($column)){
-            $column=implode(',',$column);
-            $this->sql_query_arr['select']="select {$column} from courses";
-        }
-        return $this->sql_query_arr['select'];
+        
     }
     public function sortResultBy($orderBy)
     {
         switch (strtolower($orderBy)) {
             case 'date':
                 $this->sql_query_arr['sortby']='when_added';
-                return $this->sql_query_arr['sortby'];
                 break;
             case 'views':
                 $this->sql_query_arr['sortby']='view_count';
-                return $this->sql_query_arr['sortby'];
+                break;
+            case 'download':
+                $this->sortByDownload();
                 break;
         }
     }
@@ -83,7 +84,6 @@ class search{
                 $this->sql_query_arr['sortDirection']="DESC";
                   break;
               }
-        return $this->sql_query_arr['sortDirection'];
     }
 
     public function setSqlfilter($filter,$value)
@@ -105,28 +105,46 @@ class search{
         if(!is_null($key)){
             return $this->sql_query_arr['filter'][$key];
         }
-        return $this->sql_query_arr['filter'];
     }
     public function setResultLimit($limit)
     {
         $this->sql_query_arr['limit']=$limit;
-
-        return $this->sql_query_arr['limit'];
     }
     public function setOffset($offset)
     {
         $this->sql_query_arr['offset']=$offset;
-
-        return $this->sql_query_arr['offset'];
     }
 
+    public function joinTable(string $table,string $on,string $type="LEFT"){
+        $this->sql_query_arr['join']['type']=$type;
+        $this->sql_query_arr['join']['table']=$table;
+        $this->sql_query_arr['join']['on']=$on;
+    }
+    private  function sortByDownload(){
+        $this->select(['SUM(link.dl_count) as download']);
+        $this->sql_query_arr['sortby']='download';
+        $this->joinTable('dl_Course_link as link','link.course_id','left');
+        $this->groupBy('id');
+    }
+    public function groupBy($col){
+        $this->sql_query_arr['groupby']=$col;
+    }
     public function buildQuery(){
-        $query='';
-        $query.=$this->sql_query_arr['select'];
+        $query='select ';
+        $query.=$this->sql_query_arr['select']['columns'];
+        //query table
+        $query.=" from {$this->sql_query_table}";
+        //joining table to courses 
+        if(!empty($this->sql_query_arr['join'])){
+            $join=$this->sql_query_arr['join'];
+            $query.=" {$join['type']} join {$join['table']} on {$join['on']}";            
+        }
+
         $query.=" where (institution like :searchterm or course_code like :searchterm or course_title like :searchterm or department like :searchterm)";
         //search term param arr entry
         $this->sql_param_arr[":searchterm"]="%{$this->searchTerm}%";
 
+        //filter
         if(!empty($this->sql_query_arr['filter'])){
             foreach ($this->sql_query_arr['filter'] as $key => $value) {
                 $query.=" and {$key}=:{$key}";
@@ -135,9 +153,14 @@ class search{
             }
         }
 
+        //group result with course id
+        if(isset($this->sql_query_arr['groupby'])){
+            $query.=" GROUP BY {$this->sql_query_arr['groupby']}";
+        }
+
         if(isset($this->sql_query_arr['sortby'])){
-            $query.=' order by :sortby';
-            $this->sql_param_arr[":sortby"]=$this->sql_query_arr['sortby'];
+                $query.=' order by :sortby';
+                $this->sql_param_arr[":sortby"]=$this->sql_query_arr['sortby'];
         }
 
         if(isset($this->sql_query_arr['sortDirection'])){

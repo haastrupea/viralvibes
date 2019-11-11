@@ -90,7 +90,7 @@ class dataBaseTest extends TestCase{
     public function  test_db_select_query(){
         $search= new search('wonder');
         $search->setDbconnection($this->dbConnection);
-        $search->select('*');
+        $search->select();
         $search->buildQuery();
         $query=$search->get_sql_query_string();
        $result=$this->dbConnection->queryDb($query);
