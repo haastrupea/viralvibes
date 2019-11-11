@@ -52,13 +52,14 @@ class search{
     }
     public function select(array $column=['*'])
     {
-        $column=implode(',',$column);
+        $arr=[];
         if(empty($this->sql_query_arr['select']['columns'])){
-            $this->sql_query_arr['select']['columns']=$column;
-        }else{  
-            $this->sql_query_arr['select']['columns'].=$column;
+            $arr=$column;
+        }else{ 
+            $arr=array_merge($this->sql_query_arr['select']['columns'],$column);
         }
-        
+        sort($arr);
+        $this->sql_query_arr['select']['columns']=$arr;
     }
     public function sortResultBy($orderBy)
     {
@@ -131,13 +132,14 @@ class search{
     }
     public function buildQuery(){
         $query='select ';
-        $query.=$this->sql_query_arr['select']['columns'];
+        $query.=implode(',',$this->sql_query_arr['select']['columns']);
         //query table
         $query.=" from {$this->sql_query_table}";
+
         //joining table to courses 
         if(!empty($this->sql_query_arr['join'])){
             $join=$this->sql_query_arr['join'];
-            $query.=" {$join['type']} join {$join['table']} on {$join['on']}";            
+            $query.=" {$join['type']} join {$join['table']} on id={$join['on']}";            
         }
 
         $query.=" where (institution like :searchterm or course_code like :searchterm or course_title like :searchterm or department like :searchterm)";
