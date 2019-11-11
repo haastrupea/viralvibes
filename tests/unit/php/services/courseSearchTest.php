@@ -99,7 +99,7 @@ class courseSearchTest extends TestCase{
     {
         return [
             'select all column'=>[['*'],'*'],
-            'select course id,institution,course_code and department columns as array'=>[['id,institution,course_code,department'],'id,institution,course_code,department'],
+            'select course id,institution,course_code and department columns as array'=>[['id','institution','course_code','department'],'course_code,department,id,institution'],
             'select id column as array'=>[['id'],'id'],
         ];
     }
@@ -111,12 +111,12 @@ class courseSearchTest extends TestCase{
     {
         $this->search->sortResultBy($orderby);
         //build search string
-        $this->search->select();
+        $this->search->select(['*']);
         $this->search->buildQuery();       
         $output=$this->search->get_sql_query_string();       
         $output2=$this->search->get_sql_query_param_array();       
         $this->assertStringContainsStringIgnoringCase(':sortby',$output,"Expect query string to contain :sortby");
-        $this->assertEquals($expected,$output2[':sortby'],"Expect sql_query_param_array[':sortby'] to equal {$expected}");
+        $this->assertEquals($expected,$output2[':sortby'],"Expect sql_query_param_array[':sortby'] to equal {$output}");
     }
 
      /**
@@ -263,6 +263,9 @@ class courseSearchTest extends TestCase{
          $this->assertCount($expect,$output,$msg);
     }
 
+    /**
+     * dataprovider for test_fetch_search_result_as_array function
+     */
     public function searchResultProvider()
     {
         return [
@@ -272,13 +275,11 @@ class courseSearchTest extends TestCase{
     }
 
     public function test_return_Course_Search_Result_as_json(){
-        $search=new search('sem001');
-        $search->setDbconnection($this->dbConnection);
         //select all column
-        $search->select();
+        $this->search->select();
         //build search string
-        $search->buildQuery();
-        $output=$search->getResultAsJson();
+        $this->search->buildQuery();
+        $output=$this->search->getResultAsJson();
         $this->assertJson($output,'was expecting search result in array');
     }
     }
