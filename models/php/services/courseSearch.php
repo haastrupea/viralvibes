@@ -132,6 +132,7 @@ class search{
     }
     public function buildQuery(){
         $query='select ';
+        //query column
         $query.=implode(',',$this->sql_query_arr['select']['columns']);
         //query table
         $query.=" from {$this->sql_query_table}";
@@ -142,11 +143,12 @@ class search{
             $query.=" {$join['type']} join {$join['table']} on id={$join['on']}";            
         }
 
+        //search term control
         $query.=" where (institution like :searchterm or course_code like :searchterm or course_title like :searchterm or department like :searchterm)";
         //search term param arr entry
         $this->sql_param_arr[":searchterm"]="%{$this->searchTerm}%";
 
-        //filter
+        //filter query
         if(!empty($this->sql_query_arr['filter'])){
             foreach ($this->sql_query_arr['filter'] as $key => $value) {
                 $query.=" and {$key}=:{$key}";
@@ -155,27 +157,35 @@ class search{
             }
         }
 
-        //group result with course id
+        // building "group by" query
         if(isset($this->sql_query_arr['groupby'])){
             $query.=" GROUP BY {$this->sql_query_arr['groupby']}";
         }
 
+        //building sort query
         if(isset($this->sql_query_arr['sortby'])){
                 $query.=' order by :sortby';
                 $this->sql_param_arr[":sortby"]=$this->sql_query_arr['sortby'];
         }
 
+        //building sort direction query
         if(isset($this->sql_query_arr['sortDirection'])){
             $query.=" {$this->sql_query_arr['sortDirection']}";
         }
+        
+        //building limit query
         if(isset($this->sql_query_arr['limit'])){
             $query.=" LIMIT :limit";
             $this->sql_param_arr[":limit"]=$this->sql_query_arr['limit'];
         }
+
+        //building offset query
         if(isset($this->sql_query_arr['offset'])){
             $query.=" OFFSET :offset";
             $this->sql_param_arr[":offset"]=$this->sql_query_arr['offset'];
         }
+
+        //saving the completed query
         $this->sql_query_string=$query;
     }
 }
