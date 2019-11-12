@@ -28,9 +28,9 @@
 
 // print_r(\PDO::getAvailableDrivers());
 // echo password_hash('Undercover',PASSWORD_DEFAULT);
-$me=[];
-$arr=$me["word"]['life'];
-print_r(empty($arr));
+// $me=[];
+// $arr=$me["word"]['life'];
+// print_r(empty($arr));
     ?>
 </body>
 </html>
