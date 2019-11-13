@@ -25,8 +25,7 @@ class courseViewTest extends TestCase{
         $this->buildDataSet();
 
         //search 
-        $this->courseView=new courseView('1');
-        $this->courseView->setDbconnection($db);
+        $this->courseView=new courseView('1',$db);
         $this->courseView->fetchCourse();
     }
 

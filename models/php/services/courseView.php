@@ -6,24 +6,21 @@ class courseView{
     protected $course_id;
     protected $course=[];
     
-    public function __construct($course_id)
+    public function __construct($course_id,database $connection)
     {
         $this->course_id=$course_id;
-    }
-
-    public function setDbconnection(database $connection){
         $this->dbcon=$connection;
     }
 
     /**
      * @todo make this function private
      */
-    private function fetchLinks($type,$columns){
+    private function fetchLinks($columns,$type){
         $qry="SELECT {$columns} FROM dl_Course_link WHERE course_id=?";
-        if(isset($type) && $type!=='all'){
+        if(isset($type)){
             if($type=='ext'){
                 $qry.= " AND external_link=1";
-            }else{
+            }else if($type=="int"){
                 $qry.= " AND external_link=0";
             }
         }
@@ -36,10 +33,10 @@ class courseView{
     public function getLinksAs($type,$col='*'){
         switch (strtolower($type)) {
             case 'json':
-                return json_encode($this->fetchLinks('all',$col));
+                return json_encode($this->fetchLinks($col,null));
                 break;
             default:
-            return $this->fetchLinks('all',$col);
+            return $this->fetchLinks($col,null);
         }
     }
     
@@ -65,19 +62,19 @@ class courseView{
     public function getExternalLinkAs($type,$col='*'){
         switch (strtolower($type)) {
             case 'json':
-                return json_encode($this->fetchLinks('ext',$col));
+                return json_encode($this->fetchLinks($col,'ext'));
                 break;
             default:
-                return $this->fetchLinks('ext',$col);
+                return $this->fetchLinks($col,'ext');
         }
     }
     public function getInternalLinkAs($type,$col="*"){
         switch (strtolower($type)) {
             case 'json':
-                return json_encode($this->fetchLinks('internal',$col));
+                return json_encode($this->fetchLinks($col,'int'));
                 break;
             default:
-                return $this->fetchLinks('internal',$col);
+                return $this->fetchLinks($col,'int');
         }
     }
 
