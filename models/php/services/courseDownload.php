@@ -2,20 +2,43 @@
 namespace Viralvibes\download\course;
 
 use Viralvibes\database;
-
 class downloadLink{
     protected $link_id;
     protected $dbCon;
-    public function __construct($link_id)
+    protected $link;
+    public function __construct($link_id,database $dbCon)
     {
         $this->link_id=$link_id;
-    }
-    public function setDbconnection(database $dbCon){
         $this->dbCon=$dbCon;
+        $this->fetchLink($this->link_id);
     }
-    public function is_valid()
+
+    public function fetchLink()
     {
-        $qry="select COUNT(link_id) as count from dl_Course_link where link_id=?";
-       return  $this->dbCon->queryDb($qry,[$this->link_id])[0]['count']===0?false:true;
+        
+        $qry="select * from dl_Course_link where dl_id=?";
+        $this->link=$this->dbCon->queryDb($qry,[$this->link_id]);
+        
+        return $this->link;
+    }
+
+    public function get_dl_count(){
+        if($this->is_valid()){
+            return $this->link[0]['dl_count'];
+        }
+        return null;
+    }
+
+    public function is_valid()
+    {      
+       return  empty($this->link)?false:true;
+    }
+    public function updateDownloadCount()
+    {
+        if($this->is_valid()){
+            $qry="UPDATE dl_Course_link SET dl_count=dl_count+1 where dl_id=?";
+            $this->dbCon->queryDb($qry,[$this->link_id]);
+            $this->fetchLink();
+        }
     }
 }

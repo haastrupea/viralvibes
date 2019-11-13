@@ -92,17 +92,24 @@ class courseDownloadTest extends TestCase{
      */
     public function test_link_is_valid($link_id,$expect)
     {
-        $link=new downloadLink($link_id);
+        $link=new downloadLink($link_id,$this->dbConnection);
         $output=$link->is_valid();
         $this->assertEquals($expect,$output,"the link id is {$expect}");
-        
     }
 
     public function validLinkProvider()
     {
         return [
-        'link is invalid'=>[1,false],
-        'link is valid'=>[100,true]
+        'link is invalid'=>[100,false],
+        'link is valid'=>[1,true]
         ];
+    }
+
+    public function test_increase_link_download_count_by_1()
+    {
+        $link= new downloadLink(1,$this->dbConnection);
+        $link->updateDownloadCount();
+        $out=$link->get_dl_count();
+        $this->assertEquals(6,$out,"Expect download count of 6");
     }
 }
