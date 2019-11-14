@@ -41,4 +41,20 @@ class downloadLink{
             $this->fetchLink();
         }
     }
+    
+    public function areadyReportlink($user_id)
+    {
+        $param=[':id'=>$this->link_id,':user'=>$user_id];
+        $qry="SELECT COUNT(*) as report_count FROM report_link where link_id=:id AND `user_id`=:user";
+            return $this->dbCon->queryDb($qry,$param)[0]["report_count"]==='0'?false:true;
+    }
+
+    public function reportLink($user_id,$report_reason)
+    {
+        if(!$this->areadyReportlink($user_id)){
+            $param=[':link_id'=>$this->link_id,':user'=>$user_id,':reason'=>$report_reason];
+            $qry="INSERT INTO `report_link` (`link_id`, `user_id`,`reason`) VALUES (:link_id,:user,:reason)";
+            $this->dbCon->queryDb($qry,$param);
+         }
+    }
 }
