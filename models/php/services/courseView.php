@@ -130,12 +130,7 @@ class courseView{
      {
         $param=[':id'=>$this->course_id,':user'=>$user_id];
         $qry="SELECT COUNT(*) as req_count FROM update_request where course_id=:id AND `user_id`=:user";
-        $result=$this->dbcon->queryDb($qry,$param)[0]["req_count"];
-        if($result==='0'){
-            return false;
-        }else{
-            return true;
-        }
+            return $this->dbcon->queryDb($qry,$param)[0]["req_count"]==='0'?false:true;
      }
      /**
       * @todo : remove 2 and req_id from query in production
