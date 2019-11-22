@@ -20,6 +20,11 @@ class ComposerStaticInitb2bb525fd92cdfb53c6ad5c785ca6a8b
         array (
             'Webmozart\\Assert\\' => 17,
         ),
+        'V' => 
+        array (
+            'Viralvives\\Tests\\' => 17,
+            'Viralvibes\\' => 11,
+        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Ctype\\' => 23,
@@ -45,6 +50,14 @@ class ComposerStaticInitb2bb525fd92cdfb53c6ad5c785ca6a8b
         'Webmozart\\Assert\\' => 
         array (
             0 => __DIR__ . '/..' . '/webmozart/assert/src',
+        ),
+        'Viralvives\\Tests\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/tests',
+        ),
+        'Viralvibes\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/model/php/services',
         ),
         'Symfony\\Polyfill\\Ctype\\' => 
         array (

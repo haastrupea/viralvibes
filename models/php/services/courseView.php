@@ -1,12 +1,11 @@
 <?php
 namespace Viralvibes\download\course;
-use Viralvibes\database;
 class courseView{
     protected $dbcon;
     protected $course_id;
     protected $course=[];
     
-    public function __construct($course_id,database $connection)
+    public function __construct($course_id,$connection)
     {
         $this->course_id=$course_id;
         $this->dbcon=$connection;
@@ -55,7 +54,7 @@ class courseView{
                 return json_encode($result);
                 break;
             default:
-            return $result;
+                return $result;//return array as default
         }
     }
 
@@ -68,6 +67,7 @@ class courseView{
                 return $this->fetchLinks($col,'ext');
         }
     }
+    
     public function getInternalLinkAs($type,$col="*"){
         switch (strtolower($type)) {
             case 'json':

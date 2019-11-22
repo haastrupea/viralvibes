@@ -1,9 +1,6 @@
 <?php
 namespace Viralvibes\download\course;
-require dirname(__FILE__).DIRECTORY_SEPARATOR.'database.php';
-
-use Viralvibes\database;
-class search{
+class courseSearch{
     protected $searchTerm;
     protected $dbcon;
     protected $sql_query_arr=[];
@@ -17,7 +14,7 @@ class search{
         }
     }
 
-    public function setDbconnection(database $connection){
+    public function setDbconnection($connection){
         $this->dbcon=$connection;
     }
 

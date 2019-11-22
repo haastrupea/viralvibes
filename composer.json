@@ -1,5 +1,11 @@
 {
     "require-dev": {
         "phpunit/phpunit": "^8"
+    },
+    "autoload": {
+        "psr-4": { "Viralvibes\\": "model/php/services" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Viralvibes\\Test": "tests/" }
     }
 }
