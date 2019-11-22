@@ -8,37 +8,26 @@ use \PDO;
 use Viralvibes\download\course\search;
 
 class dataBaseTest extends TestCase{
-    protected $dbConnection;
-    protected $dbname;
-    protected $usr;
-    protected $psw;
-    public function setUp():void{
-        $this->dbname='viralvibes_course_materials';
-        $this->psw="Undercover";
-        $this->usr="root";
-         //setup db connection
-         $db=new database();
-         // $db=new database('viralvibes_course_materials','root','Undercover');
-         $con=new PDO('sqlite::memory:');
-         $db->swapDbConnection($con);
-         $this->dbConnection=$db;
-         //create dbtables
-         $this->createDbTable();
-         //populate the tables
-         $this->buildDataSet();
+    static protected $dbcon;
+    static public function setUpBeforeClass(): void
+    {
+        self::$dbcon=database::getInstance('sqlite',':memory:');
+
+        //set up DATABASE TABLE
+        self::createDbTable();
+        //populate table
+        self::buildDataSet();
+    }
+    static public function tearDownAfterClass(): void
+    {
+        $qry="DROP TABLE IF EXISTS courses";
+        self::$dbcon->getConnection()->exec($qry);
+        self::$dbcon=null;
     }
 
-    
-    public function tearDown():void{
-        unset($this->dbname);
-        unset($this->usr);
-        unset($this->psw);
-        unset($this->dbConnection);
-    }
-
-    public function createDbTable(){
-        $db=$this->dbConnection;
-        $query="CREATE TABLE `courses` (
+    static public function createDbTable(){
+        $db=self::$dbcon->getConnection();
+        $query="CREATE TABLE IF NOT EXISTS `courses` (
             `course_id` int NOT NULL,
             `institution` varchar(100) NOT NULL,
             `course_code` varchar(10) NOT NULL,
@@ -56,10 +45,10 @@ class dataBaseTest extends TestCase{
             `name_is_acronym` TINYINT(1) NOT NULL DEFAULT '0',
             PRIMARY KEY (`course_id`)
           );";
-          $db->queryDb($query);
+          $db->exec($query);
     }
-    public function buildDataSet(){
-        $db=$this->dbConnection;
+    static public function buildDataSet(){
+        $db=self::$dbcon->getConnection();
         $query="INSERT INTO `courses` (`course_id`, `institution`, `course_code`, `course_title`, `department`, `session`, `semester`, `view_count`, `published`, `when_added`, `last_update`, `description`, `course_type`, `course_unit`, `name_is_acronym`) VALUES
         (1, 'Obafemi Awolowo University', 'SEM001', 'MAN AND HIS ENVIRONMENT', 'animal science', '2018/2019', '2', 0, 1, '2019-11-01 10:47:17', '2019-11-01 10:47:17', 'no description for now', 'special elective', 2, 0),
         (2, 'obafemi Awolowo University', 'SEM002', 'man and people', 'Estate mangement', '2018/2019', '1', 0, 1, '2019-11-06 00:23:16', '2019-11-06 00:23:16', 'compostry for all student that wants to graduate', 'restricted elective', 4, 0),
@@ -67,12 +56,12 @@ class dataBaseTest extends TestCase{
         (4, 'obafemi Awolowo University', 'SEM004', 'asking question', 'a.b.c.d', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'wonder but easy to pass', 'restricted elective', 4, 0),
         (5, 'obafemi Awolowo University', 'ans301', 'introduction to ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0),
         (6, 'obafemi Awolowo University', 'ans302', 'introduction to non-ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0);";
-          $db->queryDb($query);
+          $db->exec($query);
     }
 
     public function test_database_connection_throw_PDOException(){
         $this->expectException('PDOException');
-        new database($this->dbname,"username","password");
+        database::getInstance()
     }
     
     public function  test_database_connected_successfully(){
