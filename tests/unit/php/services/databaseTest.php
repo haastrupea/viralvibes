@@ -65,11 +65,11 @@ class databaseTest extends TestCase{
         $this->assertInstanceOf(\PDO::class,$out,"failed to connnect to database");
     }
 
-    public function test_fetch_all_courses(){
+    public function test_fetch_from_database(){
         $qry="select * from courses";
         $result=self::$dbcon->queryDb($qry);
         $this->assertCount(6,$result,"was expecting 6 results");
     }
 
-    
+
 }
