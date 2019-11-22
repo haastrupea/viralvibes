@@ -58,31 +58,13 @@ class dataBaseTest extends TestCase{
         (6, 'obafemi Awolowo University', 'ans302', 'introduction to non-ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0);";
           $db->exec($query);
     }
-
-    public function test_database_connection_throw_PDOException(){
-        $this->expectException('PDOException');
-        database::getInstance()
-    }
     
     public function  test_database_connected_successfully(){
-        $output=$this->dbConnection->getConnection();
+        $output=self::$dbcon->getConnection();
         $this->assertInstanceOf(PDO::class,$output,"The object returned is not PDO object as expected");
     }
-    public function  test_swapping_database_connection(){
-        $db=new database();
-        $dbold=$db->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME);
-        $con=new PDO('sqlite::memory:');
-        $db->swapDbConnection($con);
-        $dbnew=$db->getConnection()->getAttribute(PDO::ATTR_DRIVER_NAME);
-        $this->assertNotEquals($dbold,$dbnew,"Could not connect to the swapped database from:{$dbold} to: {$dbnew}");
-    }
-    public function  test_db_select_query(){
-        $search= new search('wonder');
-        $search->setDbconnection($this->dbConnection);
-        $search->select();
-        $search->buildQuery();
-        $query=$search->get_sql_query_string();
-       $result=$this->dbConnection->queryDb($query);
-       $this->assertIsArray($result,"expect db_query to return array");
+    public function test_database_connection_throw_PDOException(){
+        $this->expectException('PDOException');
+        database::getInstance('mysql',"nonexisting");
     }
 }
