@@ -59,7 +59,7 @@ trait databasetrait
           $db->exec($query);
     }
 
-    static public function buildDataSet(){
+    static public function buildCourseDataSet(){
         $db=self::$dbcon->getConnection();
         $query="INSERT INTO `courses` (id,`institution`, `code`, `title`, `department`, `session`, `semester`,`description`, `type`, `unit`, `school_name_is_acronym`) VALUES
         (1,'Obafemi Awolowo University', 'SEM001', 'MAN AND HIS ENVIRONMENT', 'animal science', '2018/2019', '2', 'no description for now', 'special elective', 2, 0),
@@ -68,6 +68,27 @@ trait databasetrait
         (4,'obafemi Awolowo University', 'SEM004', 'asking question', 'a.b.c.d', '2018/2019', '1', 'wonder but easy to pass', 'restricted elective', 4, 0),
         (5,'obafemi Awolowo University', 'ans301', 'introduction to ruminant', 'animal science, agricultural economics', '2018/2019', '1', 'for all department except fncs', 'core', 3, 0),
         (6,'obafemi Awolowo University', 'ans302', 'introduction to non-ruminant', 'animal science, agricultural economics', '2018/2019', '1', 'for all department except fncs', 'core', 3, 0);";
+          $db->exec($query);
+    } 
+    
+    static public function buildCourseLinkDataSet(){
+        $db=self::$dbcon->getConnection();
+        $query="INSERT INTO `dl_Course_link` (`dl_id`, `dl_link`, `course_id`, `external_link`, `dl_count`) VALUES 
+        (1, 'https://linkt.to/download/a/file.ext', 1, 1, 5),
+        (2, 'http://dowmloadmaterials.com/dl.php?dl=123', 2, 1, 0),
+        (3, 'http://dowmloadmaterials.com/dl.php?dl=125', 2, 1, 0),
+        (4, 'http://dowmloadmaterials.com/dl.php?dl=127', 2, 1, 0),
+        (5, 'http://dowmloadmaterials.com/dl.php?dl=12', 1, 1, 4),
+        (6, 'http://dowmloadmaterials.com/dl.php?dl=120', 5, 1, 0),
+        (7, 'upload/coursematerials/sem001_2019session.pdf', 5, 0, 0),
+        (8, 'upload/coursematerials/sem004_2019secondsemeter.pdf', 1, 0, 5);";
+          $db->exec($query);
+    } 
+    
+    static public function buildCourseUpdateRequestDataSet(){
+        $db=self::$dbcon->getConnection();
+        $query="INSERT INTO `update_request` (`course_id`, `user_id`, `date_requested`, `resolved`, `date_resolved`, `resolved_by`, `reason_for_req`) VALUES ('1', '1', CURRENT_TIMESTAMP, '0', NULL, NULL, 'it was released over 2 years ago');";
+
           $db->exec($query);
     }
 }
