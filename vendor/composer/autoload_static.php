@@ -20,11 +20,6 @@ class ComposerStaticInitb2bb525fd92cdfb53c6ad5c785ca6a8b
         array (
             'Webmozart\\Assert\\' => 17,
         ),
-        'V' => 
-        array (
-            'Viralvives\\Tests\\' => 17,
-            'Viralvibes\\' => 11,
-        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Ctype\\' => 23,
@@ -50,14 +45,6 @@ class ComposerStaticInitb2bb525fd92cdfb53c6ad5c785ca6a8b
         'Webmozart\\Assert\\' => 
         array (
             0 => __DIR__ . '/..' . '/webmozart/assert/src',
-        ),
-        'Viralvives\\Tests\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/tests',
-        ),
-        'Viralvibes\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/model/php/services',
         ),
         'Symfony\\Polyfill\\Ctype\\' => 
         array (
@@ -653,6 +640,13 @@ class ComposerStaticInitb2bb525fd92cdfb53c6ad5c785ca6a8b
         'TheSeer\\Tokenizer\\TokenCollectionException' => __DIR__ . '/..' . '/theseer/tokenizer/src/TokenCollectionException.php',
         'TheSeer\\Tokenizer\\Tokenizer' => __DIR__ . '/..' . '/theseer/tokenizer/src/Tokenizer.php',
         'TheSeer\\Tokenizer\\XMLSerializer' => __DIR__ . '/..' . '/theseer/tokenizer/src/XMLSerializer.php',
+        'Viralvibes\\Test\\courseSearchTest' => __DIR__ . '/../..' . '/tests/unit/php/services/courseSearchTest.php',
+        'Viralvibes\\Test\\databaseTest' => __DIR__ . '/../..' . '/tests/unit/php/services/databaseTest.php',
+        'Viralvibes\\Test\\databasetrait' => __DIR__ . '/../..' . '/tests/unit/php/services/databasetrait.php',
+        'Viralvibes\\database' => __DIR__ . '/../..' . '/models/php/services/database.php',
+        'Viralvibes\\download\\course\\courseSearch' => __DIR__ . '/../..' . '/models/php/services/courseSearch.php',
+        'Viralvibes\\download\\course\\courseView' => __DIR__ . '/../..' . '/models/php/services/courseView.php',
+        'Viralvibes\\download\\course\\downloadLink' => __DIR__ . '/../..' . '/models/php/services/courseDownload.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
