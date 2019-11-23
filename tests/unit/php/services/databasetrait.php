@@ -58,6 +58,22 @@ trait databasetrait
             );";
           $db->exec($query);
     }
+    
+    static public function createLinkReportTable(){
+        $db=self::$dbcon->getConnection();
+        $query="CREATE TABLE `report_link` (
+            `report_id` int,
+            `link_id` int(11) NOT NULL,
+            `user_id` int(11) NOT NULL,
+            `report_date` text NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `resolved` tinyint(1) NOT NULL DEFAULT '0',
+            `date_resolved` text NULL DEFAULT '0000-00-00 00:00:00',
+            `resolved_by` int(11) DEFAULT NULL,
+            `reason` varchar(255) NOT NULL,
+            PRIMARY KEY (`report_id`)
+          );";
+          $db->exec($query);
+    }
 
     static public function buildCourseDataSet(){
         $db=self::$dbcon->getConnection();
@@ -89,6 +105,13 @@ trait databasetrait
         $db=self::$dbcon->getConnection();
         $query="INSERT INTO `update_request` (`course_id`, `user_id`, `date_requested`, `resolved`, `date_resolved`, `resolved_by`, `reason_for_req`) VALUES ('1', '1', CURRENT_TIMESTAMP, '0', NULL, NULL, 'it was released over 2 years ago');";
 
+          $db->exec($query);
+    } 
+    
+    static public function buildLinkReportDataSet(){
+        $db=self::$dbcon->getConnection();
+        $query="INSERT INTO `report_link` (`link_id`, `user_id`,`reason`) VALUES
+        (5, 1, 'link is broken'),(5, 2,'file has been deleted');";
           $db->exec($query);
     }
 }
