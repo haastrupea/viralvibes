@@ -1,5 +1,6 @@
 <?php
 namespace Viralvibes\download\course;
+use Viralvibes\database;
 class courseSearch{
     protected $searchTerm;
     protected $dbcon;
@@ -8,14 +9,16 @@ class courseSearch{
     protected $sql_query_string='';
     protected $sql_query_table='courses';
 
-    public function __construct($connection){
+    public function __construct(database $connection){
         $this->dbcon=$connection;
     }
 
-    public function setSearchTerm($search){
+    public function search($search=""){
         if(!empty($search)){
             $this->searchTerm=$search;
         }
+
+        $this->buildQuery();
     }
 
     public function getSearchTerm(){
@@ -36,18 +39,31 @@ class courseSearch{
     {
         return $this->sql_param_arr;
     }
-    public function getResultAsArray()
-    {
-        if(!empty($this->sql_query_string)){
-           return $this->dbcon->queryDb($this->sql_query_string,$this->sql_param_arr);
+    
+    public function getResult($dataType="array"){
+        switch (strtolower($dataType)) {
+            case 'array':
+                return $this->getResultAsArray();
+                break;  
+            case 'json':
+                return $this->getResultAsJson();
+                break;
         }
     }
-    public function getResultAsJson()
+
+    private function getResultAsArray()
+    {
+        if(!empty($this->sql_query_string)){
+           return $this->dbcon->crudQuery($this->sql_query_string,$this->sql_param_arr);
+        }
+    }
+
+    private function getResultAsJson()
     {
         $arrayResult=$this->getResultAsArray();
         return json_encode($arrayResult);
     }
-    public function select(array $column=['*'])
+    public function selectColumn(array $column=['*'])
     {
         $arr=[];
         if(empty($this->sql_query_arr['select']['columns'])){
@@ -119,7 +135,7 @@ class courseSearch{
         $this->sql_query_arr['join']['on']=$on;
     }
     private  function sortByDownload(){
-        $this->select(['SUM(link.dl_count) as download']);
+        $this->selectColumn(['SUM(link.dl_count) as download']);
         $this->sql_query_arr['sortby']='download';
         $this->joinTable('dl_Course_link as link','link.course_id','left');
         $this->groupBy('id');
@@ -130,7 +146,8 @@ class courseSearch{
     public function buildQuery(){
         $query='select ';
         //query column
-        $query.=implode(',',$this->sql_query_arr['select']['columns']);
+        $col=isset($this->sql_query_arr['select'])?implode(',',$this->sql_query_arr['select']['columns']):"*";
+        $query.= $col;
         //query table
         $query.=" from {$this->sql_query_table}";
 
@@ -141,7 +158,7 @@ class courseSearch{
         }
 
         //search term control
-        $query.=" where (institution like :searchterm or course_code like :searchterm or course_title like :searchterm or department like :searchterm)";
+        $query.=" where (institution like :searchterm or code like :searchterm or title like :searchterm or department like :searchterm)";
         //search term param arr entry
         $this->sql_param_arr[":searchterm"]="%{$this->searchTerm}%";
 
