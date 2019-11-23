@@ -77,13 +77,13 @@ trait databasetrait
 
     static public function buildCourseDataSet(){
         $db=self::$dbcon->getConnection();
-        $query="INSERT INTO `courses` (id,`institution`, `code`, `title`, `department`, `session`, `semester`,`description`, `type`, `unit`, `school_name_is_acronym`) VALUES
-        (1,'Obafemi Awolowo University', 'SEM001', 'MAN AND HIS ENVIRONMENT', 'animal science', '2018/2019', '2', 'no description for now', 'special elective', 2, 0),
-        (2,'obafemi Awolowo University', 'SEM002', 'man and people', 'Estate mangement', '2018/2019', '1','compostry for all student that wants to graduate', 'restricted elective', 4, 0),
-        (3,'obafemi Awolowo University', 'seroo1', 'introduction to English', 'all department', NULL, NULL,'', 'special elective', 0, 0),
-        (4,'obafemi Awolowo University', 'SEM004', 'asking question', 'a.b.c.d', '2018/2019', '1', 'wonder but easy to pass', 'restricted elective', 4, 0),
-        (5,'obafemi Awolowo University', 'ans301', 'introduction to ruminant', 'animal science, agricultural economics', '2018/2019', '1', 'for all department except fncs', 'core', 3, 0),
-        (6,'obafemi Awolowo University', 'ans302', 'introduction to non-ruminant', 'animal science, agricultural economics', '2018/2019', '1', 'for all department except fncs', 'core', 3, 0);";
+        $query="INSERT INTO `courses` (id,`institution`, `code`, `title`, `department`, `session`, `semester`,`description`, `type`, `unit`,`view_count`,when_added) VALUES
+        (1,'Obafemi Awolowo University', 'SEM001', 'MAN AND HIS ENVIRONMENT', 'animal science', '2019/2020', '2', 'no description for now', 'special elective', 2, 20, '2019-11-06 00:28:41'),
+        (2,'obafemi Awolowo University', 'SEM002', 'man and people', 'Estate mangement', '2019/2020', '1','compostry for all student that wants to graduate', 'restricted elective', 4, 10, '2019-11-01 10:47:17'),
+        (3,'obafemi Awolowo University', 'seroo1', 'introduction to English', 'all department', NULL, NULL,'', 'special elective', 0, 0, '2019-11-06 00:23:16'),
+        (4,'obafemi Awolowo University', 'SEM004', 'asking question', 'a.b.c.d', '2018/2019', '1', 'wonder but easy to pass', 'restricted elective', 4, 0, '2019-11-06 00:23:16'),
+        (5,'obafemi Awolowo University', 'ans301', 'introduction to ruminant', 'animal science, agricultural economics', '2018/2019', '1', 'for all department except fncs', 'core', 3, 50,'2019-11-06 00:28:41'),
+        (6,'obafemi Awolowo University', 'ans302', 'introduction to non-ruminant', 'animal science, agricultural economics', '2018/2019', '1', 'for all department except fncs', 'core', 3, 5,'2019-11-06 00:28:41');";
           $db->exec($query);
     } 
     
