@@ -6,7 +6,7 @@ namespace Viralvibes\Test;
  */
 trait databasetrait
 {
-    static public function createDbTable(){
+    static public function createCourseTable(){
         $db=self::$dbcon->getConnection();
         $query="CREATE TABLE IF NOT EXISTS `courses` (
             `id` int,
@@ -28,6 +28,37 @@ trait databasetrait
           );";
           $db->exec($query);
     }
+    
+    static public function createCourseLinkTable(){
+        $db=self::$dbcon->getConnection();
+        $query="CREATE TABLE `dl_Course_link` (
+            `dl_id` int,
+            `dl_link` varchar(255) NOT NULL UNIQUE,
+            `course_id` int NOT NULL,
+            `external_link` TINYINT(1) NOT NULL DEFAULT '1',
+            `dl_count` int DEFAULT '0',
+            PRIMARY KEY (`dl_id`),
+            FOREIGN KEY (`course_id`) REFERENCES `courses` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE
+          );";
+          $db->exec($query);
+    } 
+    
+    static public function createCourseUpdateRequestTable(){
+        $db=self::$dbcon->getConnection();
+        $query="CREATE TABLE `update_request` (
+            `req_id` int,
+            `course_id` int NOT NULL,
+            `user_id` int NOT NULL,
+            `date_requested` text NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `resolved` tinyint(1) NOT NULL DEFAULT '0',
+            `date_resolved` text NULL DEFAULT NULL,
+            `resolved_by` int DEFAULT NULL,
+            `reason_for_req` varchar(255) NOT NULL,
+            PRIMARY KEY (`req_id`)
+            );";
+          $db->exec($query);
+    }
+
     static public function buildDataSet(){
         $db=self::$dbcon->getConnection();
         $query="INSERT INTO `courses` (id,`institution`, `code`, `title`, `department`, `session`, `semester`,`description`, `type`, `unit`, `school_name_is_acronym`) VALUES
