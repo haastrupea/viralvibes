@@ -16,9 +16,9 @@ class databaseTest extends TestCase{
         self::$dbcon=database::getInstance('sqlite',':memory:');
 
         //set up DATABASE TABLE
-        self::createDbTable();
+        self::createCourseTable();
         //populate table
-        self::buildDataSet();
+        self::buildCourseDataSet();
     }
     static public function tearDownAfterClass(): void
     {
