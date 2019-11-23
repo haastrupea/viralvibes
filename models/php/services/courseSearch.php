@@ -17,8 +17,6 @@ class courseSearch{
         if(!empty($search)){
             $this->searchTerm=$search;
         }
-
-        $this->buildQuery();
     }
 
     public function getSearchTerm(){
@@ -41,6 +39,7 @@ class courseSearch{
     }
     
     public function getResult($dataType="array"){
+        $this->buildQuery();//build query
         switch (strtolower($dataType)) {
             case 'array':
                 return $this->getResultAsArray();
@@ -120,7 +119,7 @@ class courseSearch{
             return $this->sql_query_arr['filter'][$key];
         }
     }
-    public function setResultLimit($limit)
+    public function setLimit($limit)
     {
         $this->sql_query_arr['limit']=$limit;
     }
@@ -143,7 +142,7 @@ class courseSearch{
     public function groupBy($col){
         $this->sql_query_arr['groupby']=$col;
     }
-    public function buildQuery(){
+    protected function buildQuery(){
         $query='select ';
         //query column
         $col=isset($this->sql_query_arr['select'])?implode(',',$this->sql_query_arr['select']['columns']):"*";
@@ -178,14 +177,15 @@ class courseSearch{
 
         //building sort query
         if(isset($this->sql_query_arr['sortby'])){
-                $query.=' order by :sortby';
-                $this->sql_param_arr[":sortby"]=$this->sql_query_arr['sortby'];
+                $query.=" order by {$this->sql_query_arr['sortby']}";
+
+
+            //building sort direction query
+            if(isset($this->sql_query_arr['sortDirection'])){
+                $query.=" {$this->sql_query_arr['sortDirection']}";
+            }
         }
 
-        //building sort direction query
-        if(isset($this->sql_query_arr['sortDirection'])){
-            $query.=" {$this->sql_query_arr['sortDirection']}";
-        }
         
         //building limit query
         if(isset($this->sql_query_arr['limit'])){
