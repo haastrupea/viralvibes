@@ -8,14 +8,14 @@ class courseSearch{
     protected $sql_query_string='';
     protected $sql_query_table='courses';
 
-    public function __construct(String $search=''){
+    public function __construct($connection){
+        $this->dbcon=$connection;
+    }
+
+    public function setSearchTerm($search){
         if(!empty($search)){
             $this->searchTerm=$search;
         }
-    }
-
-    public function setDbconnection($connection){
-        $this->dbcon=$connection;
     }
 
     public function getSearchTerm(){
