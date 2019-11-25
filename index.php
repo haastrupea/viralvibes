@@ -1,6 +1,7 @@
 <?php
-// namespace peter\paul\adeoti;
-// ini_set('allow_url_fopen','1');
+require 'models'. DIRECTORY_SEPARATOR. 'php'.DIRECTORY_SEPARATOR. 'services'.DIRECTORY_SEPARATOR.'database.php';
+
+use Viralvibes\database;
 ?>
 <!DOCTYPE html>
 <html lang="en">

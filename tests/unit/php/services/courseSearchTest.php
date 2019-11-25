@@ -1,285 +1,202 @@
 <?php
 namespace Viralvibes\Test;
 require dirname(__FILE__,5).DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'autoload.php';
-require dirname(__FILE__,5).DIRECTORY_SEPARATOR. 'models'. DIRECTORY_SEPARATOR. 'php'.DIRECTORY_SEPARATOR. 'services'.DIRECTORY_SEPARATOR.'courseSearch.php';
 
-use PDO;
-use Viralvibes\Download\course\search;
 use PHPUnit\Framework\TestCase;
+use Viralvibes\Test\databasetrait;
 use Viralvibes\database;
+use Viralvibes\download\course\courseSearch;
+use Viralvibes\pagination;
 
 class courseSearchTest extends TestCase{
-    protected $dbConnection;
-
-    public function setUp():void{
-        //setup db connection
-        $db=new database();
-        // $db=new database('viralvibes_course_materials','root','Undercover');
-        $con=new PDO('sqlite::memory:');
-        $db->swapDbConnection($con);
-        $this->dbConnection=$db;
-        //create dbtables
-        $this->createDbTable();
-        //populate the tables
-        $this->buildDataSet();
-        $this->search= new search();
-        $this->search->setDbconnection($db);
-    }
-
-    public function tearDown():void{
-        unset($this->dbConnection);
-    }
-
-    public function createDbTable(){
-        $db=$this->dbConnection;
-        $query="CREATE TABLE `courses` (
-            `id` int NOT NULL,
-            `institution` varchar(100) NOT NULL,
-            `course_code` varchar(10) NOT NULL,
-            `course_title` varchar(100) NOT NULL,
-            `department` varchar(500) NOT NULL,
-            `session` varchar(10) DEFAULT NULL,
-            `semester` varchar(10) DEFAULT NULL,
-            `view_count` int(11) DEFAULT '0',
-            `published` TINYINT(1) NOT NULL DEFAULT '1',
-            `when_added` TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `last_update` TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `description` varchar(255) NOT NULL,
-            `course_type` varchar(50) NOT NULL,
-            `course_unit` int NOT NULL,
-            `name_is_acronym` TINYINT(1) NOT NULL DEFAULT '0',
-            PRIMARY KEY (`id`)
-          );";
-          $db->queryDb($query);
-    }
-
-    public function buildDataSet(){
-        $db=$this->dbConnection;
-        $query="INSERT INTO `courses` (`id`, `institution`, `course_code`, `course_title`, `department`, `session`, `semester`, `view_count`, `published`, `when_added`, `last_update`, `description`, `course_type`, `course_unit`, `name_is_acronym`) VALUES
-        (1, 'Obafemi Awolowo University', 'SEM001', 'MAN AND HIS ENVIRONMENT', 'animal science', '2018/2019', '2', 0, 1, '2019-11-01 10:47:17', '2019-11-01 10:47:17', 'no description for now', 'special elective', 2, 0),
-        (2, 'obafemi Awolowo University', 'SEM002', 'man and people', 'Estate mangement', '2018/2019', '1', 0, 1, '2019-11-06 00:23:16', '2019-11-06 00:23:16', 'compostry for all student that wants to graduate', 'restricted elective', 4, 0),
-        (3, 'obafemi Awolowo University', 'seroo1', 'introduction to English', 'all department', NULL, NULL, 0, 1, '2019-11-06 00:23:16', '2019-11-06 00:23:16', '', 'special elective', 0, 0),
-        (4, 'obafemi Awolowo University', 'SEM004', 'asking question', 'a.b.c.d', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'wonder but easy to pass', 'restricted elective', 4, 0),
-        (5, 'obafemi Awolowo University', 'ans301', 'introduction to ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0),
-        (6, 'obafemi Awolowo University', 'ans302', 'introduction to non-ruminant', 'animal science, agricultural economics', '2018/2019', '1', 0, 1, '2019-11-06 00:28:41', '2019-11-06 00:28:41', 'for all department except fncs', 'core', 3, 0);";
-          $db->queryDb($query);
-    }
-
-    public function test_student_search_for_a_course_material(){
-        $search=new search('sem001');
-        $output=$search->getSearchTerm();
-        $this->assertEquals('sem001',$output,"the output was expected to be sem001");
-    }
-
-    public function test_search_courses_without_keyword(){
-        $output=$this->search->getSearchTerm();
-        $this->assertFalse($output,"was expecting no search term");      
-    }
-
-    public function test_empty_database_query_array()
+    static protected $dbcon;
+    use databasetrait;
+    static public function setUpBeforeClass(): void
     {
-        $output=$this->search->sql_query_array();
-        $this->assertEmpty($output,"Expecting the query array to be empty");
+        self::$dbcon=database::getInstance('sqlite',':memory:');
 
+        //set up DATABASE TABLE
+        self::createCourseTable();
+        self::createCourseLinkTable();
+        //populate table
+        self::buildCourseDataSet();
+        self::buildCourseLinkDataSet();
+    }
+    static public function tearDownAfterClass(): void
+    {
+        $db=self::$dbcon->getConnection();
+        $qry="DROP TABLE IF EXISTS courses";
+        $qry2="DROP TABLE IF EXISTS dl_Course_link";
+        $db->exec($qry);
+        $db->exec($qry2);
+        self::$dbcon=null;
     }
 
+    public function setUp():void
+    {
+       $this->courseSearch=new courseSearch(self::$dbcon);
+    }
+
+    public function test_search_for_course_materials(){
+        $this->courseSearch->search('sem001');
+
+        $result=$this->courseSearch->getResult('array');
+        $this->assertIsArray($result,"expects search result as array");
+        $this->assertNotEmpty($result,"expects non empty array");
+
+        $result1=$this->courseSearch->getResult('json');
+        $this->assertJson($result1,"expects search result to be a valid json data");
+    }
+    
+    public function test_fetch_all_course_materials(){
+        $this->courseSearch->search('');
+
+        $result=$this->courseSearch->getResult('array');
+        $this->assertIsArray($result,"expects to fetch all course material in database as array");
+        $this->assertCount(6,$result,"expecting all 6 course materials in the database");
+    } 
+    
+    public function test_no_result_found_for_course_materials(){
+        $this->courseSearch->search('non existing course material');
+
+        $result=$this->courseSearch->getResult('array');
+        $this->assertIsArray($result,"expects empty array when no rsult is found");
+        $this->assertEmpty($result,"expecting no result found i.e empty result");
+    }
+    
     /**
-     * @dataProvider selectColumnProvider
+     * @dataProvider searchFilterProvider
      */
-    public function test_column_to_select_from_course_table($col,$expected)
+    public function test_filter_course_materials_search_result($filter,$value,$msg)
     {
-        $this->search->select($col);
-        $this->search->buildQuery();       
-        $output=$this->search->get_sql_query_string(); 
-        $this->assertStringContainsStringIgnoringCase($expected,$output,"Expecting {$expected} column(s)");
+    
+        $this->courseSearch->resultFilter($filter,$value);//filter
+        $this->courseSearch->search();//Default to empty string
 
+        $results=$this->courseSearch->getResult();//build query and Default to array
+        $this->assertNotEmpty($results,"expects non empty {$value} filtered result");
+
+        foreach ($results as $result) {
+            $this->assertEquals($value,$result[$filter],$msg);
+        }
     }
 
-    public function selectColumnProvider()
+    public function searchFilterProvider()
     {
         return [
-            'select all column'=>[['*'],'*'],
-            'select course id,institution,course_code and department columns as array'=>[['id','institution','course_code','department'],'course_code,department,id,institution'],
-            'select id column as array'=>[['id'],'id'],
-        ];
-    }
-
-     /**
-     * @dataProvider sortResultByProvider
-     */
-    public function test_sort_result_by($orderby,$expected)
-    {
-        $this->search->sortResultBy($orderby);
-        //build search string
-        $this->search->select(['*']);
-        $this->search->buildQuery();       
-        $output=$this->search->get_sql_query_string();       
-        $output2=$this->search->get_sql_query_param_array();       
-        $this->assertStringContainsStringIgnoringCase(':sortby',$output,"Expect query string to contain :sortby");
-        $this->assertEquals($expected,$output2[':sortby'],"Expect sql_query_param_array[':sortby'] to equal {$output}");
-    }
-
-     /**
-     * dataProvider for sortResultByProvider
-     */
-    public function sortResultByProvider()
-    {
-        return [
-            'Date'=>['date','when_added'],
-            'views'=>['views','view_count'],
-            'download'=>['download',"download"]
+            'first semester filter'=>['semester','1',"expects to 1 for first semester filter"],
+            'second semester filter'=>['semester','2',"expects to 2 for second semester filter"],
+            'school filter'=>['institution','Obafemi Awolowo University',"expects obafemi awolowo University as filter result"],
+            'session filter'=>['session','2019/2020','expects 2019/2020 for session filter']
         ];
     }
 
     /**
      * @dataProvider sortResultProvider
      */
-    public function test_sort_result_direction($direction,$msg)
+    public function test_sort_course_materials_search_result($sortBy,$direction,$expected)
     {
-        $this->search->sortDirection($direction);
-        //build search string
-        $this->search->select();       
-        $this->search->buildQuery();       
-        $output=$this->search->get_sql_query_string();   
-        $this->assertStringContainsStringIgnoringCase($direction,$output,$msg);
+    
+        $this->courseSearch->sortResultBy($sortBy);//sort
+        $this->courseSearch->sortDirection($direction);//sort
+        $this->courseSearch->search('');//instantiate search term and build query
+        
+        $results=$this->courseSearch->getResult();//Default to array
+        
+        if($direction==="DESC"){
+            $this->assertLessThan($results[0][$expected],$results[5][$expected],"expecting {$sortBy} {$direction}: sorted result first entry to be greater than last entry");
+        }else{  
+            $this->assertGreaterThan($results[0][$expected],$results[5][$expected],"expecting {$sortBy} {$direction}: sorted result last entry to be greater than first entry");
+        }
 
     }
 
- /**
-     * dataprovider for test_sort_result
+       /**
+     * dataProvider for sortResultByProvider
      */
     public function sortResultProvider()
     {
-       return [
-           'Ascending'=>['ASC',"Expecting ASC i.e sort in ASCending order"],
-           'Descending'=>['DESC',"Expecting DESC i.e sort in DESCending order"]
-       ];
-    }
-
-    /**
-     * @dataProvider filterDataProvider
-     */
-    public function test_filter_result($filter,$filterValue,$msg)
-    {
-        $this->search->setSqlfilter($filter,$filterValue);
-        //build search string
-        $this->search->select();
-        $this->search->buildQuery();       
-        $output=$this->search->getSqlFilter($filter);
-        $this->assertStringContainsStringIgnoringCase($filterValue,$output,$msg);
-
-    }
-
-    /**
-     * dataprovider for test_filter_result
-     */
-    public function filterDataProvider(){
         return [
-            'first semester filter'=>['semester','1',"expect to 1 for first semester filter"],
-            'second semester filter'=>['semester','2',"expect to 2 for second semester filter"],
-            'school filter'=>['institution','obafemi awolowo University',"expect obafemi awolowo University as filter result"],
-            'session filter'=>['session','2019/2020','expect 2019/2020 for session filter']
+            'Date ascending'=>['date','ASC','when_added'],
+            'Date descending'=>['date','DESC','when_added'],
+            'views ascending'=>['views','ASC','view_count'],
+            'views descending'=>['views','DESC','view_count'],
+            'download ascending'=>['download','ASC',"download"],
+            'download descending'=>['download','DESC',"download"]
         ];
     }
 
-    /**
-     * @dataProvider resultLimitProvider
-     */
-    public function test_set_search_result_limit($limit)
+    public function test_total_result_per_page()
     {
+      
+        $search=$this->courseSearch;
+        $perPage=5;
+        $search->search();//add user search before calling pagination
+
+        new pagination($search,$perPage);
+
+        $result=$search->getResult();//default to array result
+        $this->assertCount($perPage,$result,"expects {$perPage} items per pagination page");
+    }
+    
+    public function test_total_pagination_page()
+    {
+        $search=$this->courseSearch;
+        $perPage=3;
+        $search->search();
         
-        $this->search->setResultLimit($limit);
-        //build search string
-        $this->search->select();     
-        $this->search->buildQuery();
-        $output=$this->search->getResultAsArray();
-        $this->assertCount($limit,$output,"search result was limited {$limit} results");
+        $pages=new pagination($search,$perPage);
+        $result=$pages->getTotalPages();
+        $this->assertEquals(2,$result,"Expects total number of 2 page results");
     }
-
-    public function resultLimitProvider()
+    
+    public function test_total_result_found()
     {
-        return [
-            'result to 3'=>[3],
-            'result to 4'=>[4],
-        ];
-
-    }
-
-    public function test_set_search_result_offset()
-    {
-        $this->search->setOffset(2);
-        //build search string
-        $this->search->select();       
-        $this->search->buildQuery();
-        $output=$this->search->get_sql_query_string();
-        $this->assertStringContainsStringIgnoringCase('offset',$output,'search result was expected to contain "offset"');
-    }
-
-    public function test_build_sql_search_query(){
-        //create instance of search
-        $search= new search('sem001');
-        //select all column
-        $search->select();       
-        //filter
-        $search->setSqlfilter('institution','Obafemi Awolowo University');
-        //sort
-        $search->sortResultBy('date');
-        //sort direction
-        $search->sortDirection('ASC');
-        //limit result to 3
-        $search->setResultLimit(3);
-        //offset result by 2
-        $search->setOffset(2);
+        $search=$this->courseSearch;
+        $perPage=3;
+        $search->search('ans');
         
-        //build search string
-        $search->buildQuery();
-        $output=$search->get_sql_query_string();
-        //expected query
-        $query="select * from courses where (institution like :searchterm or course_code like :searchterm or course_title like :searchterm or department like :searchterm) and institution=:institution order by :sortby ASC LIMIT :limit OFFSET :offset";
-        //assert
-        $this->assertEquals($query,$output,"expecting $query");
-
-        $outputparam=$search->get_sql_query_param_array();
-        //expected query
-        $param=[':searchterm' => '%sem001%',':institution' => 'Obafemi Awolowo University',':sortby' => 'when_added',':limit' => 3,':offset' => 2];
-        //assert
-        $this->assertEquals($param,$outputparam,"expecting parameterised array");
+        $pages=new pagination($search,$perPage);
+        $result=$pages->getTotalResult();
+        $this->assertEquals(2,$result,"Expects total number of 2 search results for 'ans' ");
     }
-  
-    /**
-     * @dataProvider searchResultProvider
-     */
-    public function test_fetch_search_result_as_array($searchTerm,$expect,$msg){
-         //create instance of search
-         $search= new search($searchTerm);
-         $search->setDbconnection($this->dbConnection);
-         //select all column
-         $search->select();
-         //build search string
-         $search->buildQuery();
-         $output=$search->getResultAsArray();
-         //assert
-         $this->assertIsArray($output,"the search result was expected to be array");
-         $this->assertCount($expect,$output,$msg);
+     public function test_navigate_to_second_result_page()
+    {
+        $search=$this->courseSearch;
+        $perPage=2;
+        $search->search();
+        
+        $pages=new pagination($search,$perPage);
+        $pages->gotoPage(2);
+        $result=$search->getResult();
+        $this->assertGreaterThanOrEqual(3,$result[0]['id'],"Expects the id of the first result on second page to be 3");
     }
 
     /**
-     * dataprovider for test_fetch_search_result_as_array function
+     * @dataProvider selectedColProvider
      */
-    public function searchResultProvider()
+    public function test_get_selected_column_of_a_course($cols,$colNum)
+    {
+        $search=$this->courseSearch;
+        $search->search('ans');
+        $search->resultFilter('session','2018/2019');
+        $search->selectColumn($cols);
+
+        $result=$search->getResult();
+
+        $this->assertCount($colNum,$result[0],"expects {$colNum} columns in the search result");
+        foreach ($cols as $col) {
+            $this->assertArrayHasKey($col,$result[0],"expects {$col} column in search result ");
+        }
+
+    }
+    public function selectedColProvider()
     {
         return [
-            ['','6','expect to return all the courses in the database as array when there is no search term and filter'],
-            ['monday','0','expected no result to be found'],
+            'id,institution, code, title, department columns'=>[['id','institution', 'code', 'title', 'department'],5],
+            'id column'=>[['id'],1]
         ];
     }
 
-    public function test_return_Course_Search_Result_as_json(){
-        //select all column
-        $this->search->select();
-        //build search string
-        $this->search->buildQuery();
-        $output=$this->search->getResultAsJson();
-        $this->assertJson($output,'was expecting search result in array');
-    }
-    }
+
+}

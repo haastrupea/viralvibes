@@ -4,10 +4,12 @@ class database{
     /**
      * store instance of the current database connection
      */
-    private $_dbconnection;
+    private $_dbcon;
     private $_dbName;
     static private $_instance=[];
-    static public function getInstance($dbdriver,$dbname,$usr=null,$psw=null){
+
+    static public function getInstance($dbdriver,$dbname,$usr=null,$psw=null)
+    {
         if(empty(self::$_instance)){
             self::$_instance[$dbname]= new self($dbdriver,$dbname,$usr,$psw);
         }else{
@@ -17,13 +19,9 @@ class database{
         }
         return self::$_instance[$dbname];
     }
-    
-    public function getAllInstance()
-    {
-      return self::$_instance;
-    }
 
-    private function __construct($dbdriver,$dbname,$usr,$psw){
+    private function __construct($dbdriver,$dbname,$usr,$psw)
+    {
         $this->_dbName=$dbname;
         $dsn='';
         switch (strtolower($dbdriver)) {
@@ -35,27 +33,30 @@ class database{
                 break;
         }
             $dbcon=new \PDO($dsn,$usr,$psw);
-            $this->_dbconnection=$dbcon;
-        }
-
-    public function getConnection(){
-            return $this->_dbconnection;
+            $this->_dbcon=$dbcon;
     }
 
-    public function queryDb($query,array $param=null,$fetchStyle=\PDO::FETCH_ASSOC){    
-        $qry=$this->_dbconnection->prepare($query);
-        if(is_null($param)){
-            $qry->execute();
-        }else{
-            $qry->execute($param);
-        }
+    public function __clone(){}
 
-        //return result if any
-        return $qry->fetchAll($fetchStyle);
-    }
-
-    public function __clone()
+    public function getConnection()
     {
-        
+        //to perform non crud operation
+            return $this->_dbcon;
+    }
+
+    private function queryDb($query,array $param=null,$getresult=true,$fetchStyle=\PDO::FETCH_ASSOC)
+    {    
+        $qry=$this->_dbcon->prepare($query);
+        $satus=is_null($param)?$qry->execute(): $qry->execute($param);
+        //return result
+        if ($getresult) {
+            return $satus?$qry->fetchAll($fetchStyle):false;   
+        }
+    }
+    
+    public function crudQuery($qry,array $param=null,$fetchStyle=\PDO::FETCH_ASSOC)
+    {    
+        $selectQry=stripos($qry,"select");
+        return !is_bool($selectQry)?$this->queryDb($qry,$param,$fetchStyle=$fetchStyle):$this->queryDb($qry,$param,false);
     }
 }
