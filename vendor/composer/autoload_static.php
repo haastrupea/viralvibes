@@ -647,6 +647,7 @@ class ComposerStaticInitb2bb525fd92cdfb53c6ad5c785ca6a8b
         'Viralvibes\\download\\course\\courseSearch' => __DIR__ . '/../..' . '/models/php/services/courseSearch.php',
         'Viralvibes\\download\\course\\courseView' => __DIR__ . '/../..' . '/models/php/services/courseView.php',
         'Viralvibes\\download\\course\\downloadLink' => __DIR__ . '/../..' . '/models/php/services/courseDownload.php',
+        'Viralvibes\\pagination' => __DIR__ . '/../..' . '/models/php/services/pagination.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

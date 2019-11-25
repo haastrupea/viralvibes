@@ -588,4 +588,5 @@ return array(
     'Viralvibes\\download\\course\\courseSearch' => $baseDir . '/models/php/services/courseSearch.php',
     'Viralvibes\\download\\course\\courseView' => $baseDir . '/models/php/services/courseView.php',
     'Viralvibes\\download\\course\\downloadLink' => $baseDir . '/models/php/services/courseDownload.php',
+    'Viralvibes\\pagination' => $baseDir . '/models/php/services/pagination.php',
 );
