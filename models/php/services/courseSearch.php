@@ -1,6 +1,7 @@
 <?php
 namespace Viralvibes\download\course;
 use Viralvibes\database;
+use Viralvibes\pagination;
 class courseSearch{
     protected $searchTerm;
     protected $dbcon;
@@ -39,7 +40,9 @@ class courseSearch{
     }
     
     public function getResult($dataType="array"){
-        $this->buildQuery();//build query
+
+            $this->buildQuery();//build query
+
         switch (strtolower($dataType)) {
             case 'array':
                 return $this->getResultAsArray();
@@ -99,7 +102,7 @@ class courseSearch{
               }
     }
 
-    public function setSqlfilter($filter,$value)
+    public function resultFilter($filter,$value)
     {
         switch ($filter) {
             case 'session':
@@ -119,14 +122,22 @@ class courseSearch{
             return $this->sql_query_arr['filter'][$key];
         }
     }
-    public function setLimit($limit)
+
+    /**Pagination methods */
+    public function setPageLimit($limit)
     {
         $this->sql_query_arr['limit']=$limit;
     }
-    public function setOffset($offset)
+    
+    public function getPageLimit()
+    {
+        return $this->sql_query_arr['limit'];
+    }
+    public function setPageOffset($offset)
     {
         $this->sql_query_arr['offset']=$offset;
     }
+    /**Pagination methods  end*/
 
     public function joinTable(string $table,string $on,string $type="LEFT"){
         $this->sql_query_arr['join']['type']=$type;
