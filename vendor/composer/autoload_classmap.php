@@ -581,4 +581,12 @@ return array(
     'TheSeer\\Tokenizer\\TokenCollectionException' => $vendorDir . '/theseer/tokenizer/src/TokenCollectionException.php',
     'TheSeer\\Tokenizer\\Tokenizer' => $vendorDir . '/theseer/tokenizer/src/Tokenizer.php',
     'TheSeer\\Tokenizer\\XMLSerializer' => $vendorDir . '/theseer/tokenizer/src/XMLSerializer.php',
+    'Viralvibes\\Test\\courseSearchTest' => $baseDir . '/tests/unit/php/services/courseSearchTest.php',
+    'Viralvibes\\Test\\databaseTest' => $baseDir . '/tests/unit/php/services/databaseTest.php',
+    'Viralvibes\\Test\\databasetrait' => $baseDir . '/tests/unit/php/services/databasetrait.php',
+    'Viralvibes\\database' => $baseDir . '/models/php/services/database.php',
+    'Viralvibes\\download\\course\\courseSearch' => $baseDir . '/models/php/services/courseSearch.php',
+    'Viralvibes\\download\\course\\courseView' => $baseDir . '/models/php/services/courseView.php',
+    'Viralvibes\\download\\course\\downloadLink' => $baseDir . '/models/php/services/courseDownload.php',
+    'Viralvibes\\pagination' => $baseDir . '/models/php/services/pagination.php',
 );

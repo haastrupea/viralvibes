@@ -1,9 +1,8 @@
 <?php
 namespace Viralvibes\download\course;
-require dirname(__FILE__).DIRECTORY_SEPARATOR.'database.php';
-
 use Viralvibes\database;
-class search{
+use Viralvibes\pagination;
+class courseSearch{
     protected $searchTerm;
     protected $dbcon;
     protected $sql_query_arr=[];
@@ -11,14 +10,14 @@ class search{
     protected $sql_query_string='';
     protected $sql_query_table='courses';
 
-    public function __construct(String $search=''){
+    public function __construct(database $connection){
+        $this->dbcon=$connection;
+    }
+
+    public function search($search=""){
         if(!empty($search)){
             $this->searchTerm=$search;
         }
-    }
-
-    public function setDbconnection(database $connection){
-        $this->dbcon=$connection;
     }
 
     public function getSearchTerm(){
@@ -39,18 +38,34 @@ class search{
     {
         return $this->sql_param_arr;
     }
-    public function getResultAsArray()
-    {
-        if(!empty($this->sql_query_string)){
-           return $this->dbcon->queryDb($this->sql_query_string,$this->sql_param_arr);
+    
+    public function getResult($dataType="array"){
+
+            $this->buildQuery();//build query
+
+        switch (strtolower($dataType)) {
+            case 'array':
+                return $this->getResultAsArray();
+                break;  
+            case 'json':
+                return $this->getResultAsJson();
+                break;
         }
     }
-    public function getResultAsJson()
+
+    private function getResultAsArray()
+    {
+        if(!empty($this->sql_query_string)){
+           return $this->dbcon->crudQuery($this->sql_query_string,$this->sql_param_arr);
+        }
+    }
+
+    private function getResultAsJson()
     {
         $arrayResult=$this->getResultAsArray();
         return json_encode($arrayResult);
     }
-    public function select(array $column=['*'])
+    public function selectColumn(array $column=['*'])
     {
         $arr=[];
         if(empty($this->sql_query_arr['select']['columns'])){
@@ -87,7 +102,7 @@ class search{
               }
     }
 
-    public function setSqlfilter($filter,$value)
+    public function resultFilter($filter,$value)
     {
         switch ($filter) {
             case 'session':
@@ -107,14 +122,22 @@ class search{
             return $this->sql_query_arr['filter'][$key];
         }
     }
-    public function setResultLimit($limit)
+
+    /**Pagination methods */
+    public function setPageLimit($limit)
     {
         $this->sql_query_arr['limit']=$limit;
     }
-    public function setOffset($offset)
+    
+    public function getPageLimit()
+    {
+        return $this->sql_query_arr['limit'];
+    }
+    public function setPageOffset($offset)
     {
         $this->sql_query_arr['offset']=$offset;
     }
+    /**Pagination methods  end*/
 
     public function joinTable(string $table,string $on,string $type="LEFT"){
         $this->sql_query_arr['join']['type']=$type;
@@ -122,7 +145,7 @@ class search{
         $this->sql_query_arr['join']['on']=$on;
     }
     private  function sortByDownload(){
-        $this->select(['SUM(link.dl_count) as download']);
+        $this->selectColumn(['SUM(link.dl_count) as download']);
         $this->sql_query_arr['sortby']='download';
         $this->joinTable('dl_Course_link as link','link.course_id','left');
         $this->groupBy('id');
@@ -130,10 +153,11 @@ class search{
     public function groupBy($col){
         $this->sql_query_arr['groupby']=$col;
     }
-    public function buildQuery(){
+    protected function buildQuery(){
         $query='select ';
         //query column
-        $query.=implode(',',$this->sql_query_arr['select']['columns']);
+        $col=isset($this->sql_query_arr['select'])?implode(',',$this->sql_query_arr['select']['columns']):"*";
+        $query.= $col;
         //query table
         $query.=" from {$this->sql_query_table}";
 
@@ -144,7 +168,7 @@ class search{
         }
 
         //search term control
-        $query.=" where (institution like :searchterm or course_code like :searchterm or course_title like :searchterm or department like :searchterm)";
+        $query.=" where (institution like :searchterm or code like :searchterm or title like :searchterm or department like :searchterm)";
         //search term param arr entry
         $this->sql_param_arr[":searchterm"]="%{$this->searchTerm}%";
 
@@ -164,14 +188,15 @@ class search{
 
         //building sort query
         if(isset($this->sql_query_arr['sortby'])){
-                $query.=' order by :sortby';
-                $this->sql_param_arr[":sortby"]=$this->sql_query_arr['sortby'];
+                $query.=" order by {$this->sql_query_arr['sortby']}";
+
+
+            //building sort direction query
+            if(isset($this->sql_query_arr['sortDirection'])){
+                $query.=" {$this->sql_query_arr['sortDirection']}";
+            }
         }
 
-        //building sort direction query
-        if(isset($this->sql_query_arr['sortDirection'])){
-            $query.=" {$this->sql_query_arr['sortDirection']}";
-        }
         
         //building limit query
         if(isset($this->sql_query_arr['limit'])){
