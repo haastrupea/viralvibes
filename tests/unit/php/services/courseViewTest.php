@@ -29,8 +29,10 @@ class courseViewTest extends TestCase{
         $db=self::$dbcon->getConnection();
         $qry="DROP TABLE IF EXISTS courses";
         $qry2="DROP TABLE IF EXISTS dl_Course_link";
+        $qry3="DROP TABLE IF EXISTS update_request";
         $db->exec($qry);
         $db->exec($qry2);
+        $db->exec($qry3);
         self::$dbcon=null;
     }
 
