@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Viralvibes\Test\databasetrait;
 use Viralvibes\database;
 use Viralvibes\download\course\courseSearch;
+use Viralvibes\pagination;
 
 class courseSearchTest extends TestCase{
     static protected $dbcon;
@@ -40,18 +41,18 @@ class courseSearchTest extends TestCase{
         $this->courseSearch->search('sem001');
 
         $result=$this->courseSearch->getResult('array');
-        $this->assertIsArray($result,"expect search result as array");
-        $this->assertNotEmpty($result,"expect non empty array");
+        $this->assertIsArray($result,"expects search result as array");
+        $this->assertNotEmpty($result,"expects non empty array");
 
         $result1=$this->courseSearch->getResult('json');
-        $this->assertJson($result1,"expect search result to be a valid json data");
+        $this->assertJson($result1,"expects search result to be a valid json data");
     }
     
     public function test_fetch_all_course_materials(){
         $this->courseSearch->search('');
 
         $result=$this->courseSearch->getResult('array');
-        $this->assertIsArray($result,"expect to fetch all course material in database as array");
+        $this->assertIsArray($result,"expects to fetch all course material in database as array");
         $this->assertCount(6,$result,"expecting all 6 course materials in the database");
     } 
     
@@ -59,7 +60,7 @@ class courseSearchTest extends TestCase{
         $this->courseSearch->search('non existing course material');
 
         $result=$this->courseSearch->getResult('array');
-        $this->assertIsArray($result,"expect empty array when no rsult is found");
+        $this->assertIsArray($result,"expects empty array when no rsult is found");
         $this->assertEmpty($result,"expecting no result found i.e empty result");
     }
     
@@ -69,11 +70,11 @@ class courseSearchTest extends TestCase{
     public function test_filter_course_materials_search_result($filter,$value,$msg)
     {
     
-        $this->courseSearch->setSqlfilter($filter,$value);//filter
-        $this->courseSearch->search('');//instantiate search term
+        $this->courseSearch->resultFilter($filter,$value);//filter
+        $this->courseSearch->search();//Default to empty string
 
         $results=$this->courseSearch->getResult();//build query and Default to array
-        $this->assertNotEmpty($results,"expect non empty {$value} filtered result");
+        $this->assertNotEmpty($results,"expects non empty {$value} filtered result");
 
         foreach ($results as $result) {
             $this->assertEquals($value,$result[$filter],$msg);
@@ -83,10 +84,10 @@ class courseSearchTest extends TestCase{
     public function searchFilterProvider()
     {
         return [
-            'first semester filter'=>['semester','1',"expect to 1 for first semester filter"],
-            'second semester filter'=>['semester','2',"expect to 2 for second semester filter"],
-            'school filter'=>['institution','Obafemi Awolowo University',"expect obafemi awolowo University as filter result"],
-            'session filter'=>['session','2019/2020','expect 2019/2020 for session filter']
+            'first semester filter'=>['semester','1',"expects to 1 for first semester filter"],
+            'second semester filter'=>['semester','2',"expects to 2 for second semester filter"],
+            'school filter'=>['institution','Obafemi Awolowo University',"expects obafemi awolowo University as filter result"],
+            'session filter'=>['session','2019/2020','expects 2019/2020 for session filter']
         ];
     }
 
@@ -122,6 +123,78 @@ class courseSearchTest extends TestCase{
             'views descending'=>['views','DESC','view_count'],
             'download ascending'=>['download','ASC',"download"],
             'download descending'=>['download','DESC',"download"]
+        ];
+    }
+
+    public function test_total_result_per_page()
+    {
+      
+        $search=$this->courseSearch;
+        $perPage=5;
+        $search->search();//add user search before calling pagination
+
+        new pagination($search,$perPage);
+
+        $result=$search->getResult();//default to array result
+        $this->assertCount($perPage,$result,"expects {$perPage} items per pagination page");
+    }
+    
+    public function test_total_pagination_page()
+    {
+        $search=$this->courseSearch;
+        $perPage=3;
+        $search->search();
+        
+        $pages=new pagination($search,$perPage);
+        $result=$pages->getTotalPages();
+        $this->assertEquals(2,$result,"Expects total number of 2 page results");
+    }
+    
+    public function test_total_result_found()
+    {
+        $search=$this->courseSearch;
+        $perPage=3;
+        $search->search('ans');
+        
+        $pages=new pagination($search,$perPage);
+        $result=$pages->getTotalResult();
+        $this->assertEquals(2,$result,"Expects total number of 2 search results for 'ans' ");
+    }
+     public function test_navigate_to_second_result_page()
+    {
+        $search=$this->courseSearch;
+        $perPage=2;
+        $search->search();
+        
+        $pages=new pagination($search,$perPage);
+        $pages->gotoPage(2);
+        $result=$search->getResult();
+        $this->assertGreaterThanOrEqual(3,$result[0]['id'],"Expects the id of the first result on second page to be 3");
+    }
+
+    /**
+     * @dataProvider selectedColProvider
+     */
+    public function test_get_selected_column_of_a_course($cols,$colNum)
+    {
+        $search=$this->courseSearch;
+        $search->search('ans');
+        $search->resultFilter('session','2018/2019');
+        $search->selectColumn($cols);
+
+        $result=$search->getResult();
+
+        $this->assertCount($colNum,$result[0],"expects {$colNum} columns in the search result");
+        foreach ($cols as $col) {
+            $this->assertArrayHasKey($col,$result[0],"expects {$col} column in search result ");
+        }
+
+    }
+    public function selectedColProvider()
+    {
+        return [
+            'id,institution, code, title, department columns'=>[['id','institution', 'code', 'title', 'department'],5],
+            'id column'=>[['id'],1]
         ];
     }
 
