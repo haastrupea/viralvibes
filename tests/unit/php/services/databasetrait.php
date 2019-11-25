@@ -37,6 +37,7 @@ trait databasetrait
             `course_id` int NOT NULL,
             `external_link` TINYINT(1) NOT NULL DEFAULT '1',
             `dl_count` int DEFAULT '0',
+            `fileType` varchar(25) DEFAULT 'pdf',
             PRIMARY KEY (`dl_id`),
             FOREIGN KEY (`course_id`) REFERENCES `courses` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE
           );";
@@ -96,8 +97,8 @@ trait databasetrait
         (4, 'http://dowmloadmaterials.com/dl.php?dl=127', 2, 1, 0),
         (5, 'http://dowmloadmaterials.com/dl.php?dl=12', 1, 1, 4),
         (6, 'http://dowmloadmaterials.com/dl.php?dl=120', 5, 1, 0),
-        (7, 'upload/coursematerials/sem001_2019session.pdf', 5, 0, 0),
-        (8, 'upload/coursematerials/sem004_2019secondsemeter.pdf', 1, 0, 5);";
+        (7, 'sem001_course_title_20182019.pdf', 5, 0, 0),
+        (8, 'sem004_course_title_20182019.pdf', 1, 0, 5);";
           $db->exec($query);
     } 
     
