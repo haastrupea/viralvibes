@@ -21,7 +21,7 @@ class defaultController{
     public function home()
     {
         $model=$this->getModel();
-        include_once 'views/php/homePage.php';
+        include_once 'views/homePage.php';
     }
 
 }
