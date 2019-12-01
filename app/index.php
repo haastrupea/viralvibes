@@ -1,7 +1,10 @@
 <?php
+include_once 'controller/php/controllersLoader.php';
+include_once 'models/php/modelsLoader.php';
+
 $action=isset($_GET['a']) ? $_GET['a']: '';//action could be search/rent/read/share/report/request/course/music/video/
 $page=isset($_GET['p']) ? $_GET['p']: 'home';
-$param=$_GET['value'];//will be the value on which the action needs to be performed on
+$param=isset($_GET['q']) ? $_GET['q'] :''; //will be the value on which the action needs to be performed on
 
 /**
  * Router link structure=/page/action/param
