@@ -2,9 +2,6 @@
 include_once 'controller/php/controllersLoader.php';
 include_once 'models/php/modelsLoader.php';
 
-$action=isset($_GET['a']) ? $_GET['a']: '';//action could be search/rent/read/share/report/request/course/music/video/
-$page=isset($_GET['p']) ? $_GET['p']: 'home';
-$param=isset($_GET['q']) ? $_GET['q'] :''; //will be the value on which the action needs to be performed on
 
 /**
  * Router link structure=/page/action/param
@@ -13,19 +10,35 @@ $param=isset($_GET['q']) ? $_GET['q'] :''; //will be the value on which the acti
  * param could be the value that needed to perform an action
  */
 
-switch ($page) {
-    case 'download':
-        $controller=new downloadController();//download home page
-        break;
-    case 'housing':
-        $controller=new housingController();//housing home page
-        break;
-    case 'news':
-        $controller=new newsController();//news home page
-        break;
-    default:
-        $controller=new defaultController();//site home page
-        break;
-}
+// switch ($page) {
+//     case 'download':
+//         $controller=new downloadController();//download home page
+//         break;
+//     case 'housing':
+//         $controller=new housingController();//housing home page
+//         break;
+//     case 'news':
+//         $controller=new newsController();//news home page
+//         break;
+//     default:
+//         $controller=new defaultController();//site home page
+//         break;
+// }
 
-$controller->run($action,$param);
+// $controller->run($action,$param);
+
+$app=new router;
+
+$app->get('/download[/{action}][/{cat}][/{q}]',function($args){
+
+    // $action=$args['action'];
+    // $cat=$args['cat'];
+    // $query=$args['q'];
+
+    // echo "Action=".$action;
+    // echo "<br>";
+    // echo "Category=".$cat;
+    // echo "<br>";
+    // echo "Search query=".$query;
+});
+$app->run();
