@@ -11,10 +11,10 @@ class defaultController implements controller{
     
     function home($section)
     {
-        //load midel if any
+        //load model if any
         $model=new homePageModel($section);
-        //pass args into the view if any
-        $view=new homePageView();
+
+        $view=new homePageView;
 
         //pass model into it if any
         $view->render($model);
