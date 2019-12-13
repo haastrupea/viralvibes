@@ -15,6 +15,6 @@ class homePageModel{
     }
     public function getPageSection()
     {
-        return "/assets/imgs/logo.svg";
+        return $this->pageSection;
     }
 }

@@ -1,5 +1,5 @@
 <?php
-class homePageView extends Views{
+class homePageView implements views{
 
     public function render($model)
     {
