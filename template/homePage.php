@@ -11,7 +11,7 @@
 </body>
 </html>
 <h1><?php echo $officialName;?></h1>
-<p><?php echo "You are currently viewing $section section"; ?></p>
+<p><?php echo $section; ?></p>
 
 <img src="<?php echo $logoImg ?>" alt="<?php echo $officialName?> logo">
 

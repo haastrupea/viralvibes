@@ -1,18 +1,22 @@
 <?php
-class defaultController{
-    public function run(String $action='home',Array $param=null)
+class defaultController implements controller{
+    public function run(String $action='home',Array $param)
     {
      if(!method_exists($this,$action)){
          $action='home';
      }
 
-     call_user_func_array([$this,$action],$param);
+        call_user_func_array([$this,$action],$param);
     }
     
-    protected function home($section)
+    function home($section)
     {
-        $view=new homePageView($section);
+        //load midel if any
+        $model=new homePageModel($section);
+        //pass args into the view if any
+        $view=new homePageView();
 
-        $view->render();
+        //pass model into it if any
+        $view->render($model);
     }
 }

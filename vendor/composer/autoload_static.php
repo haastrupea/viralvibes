@@ -643,6 +643,7 @@ class ComposerStaticInitb2bb525fd92cdfb53c6ad5c785ca6a8b
         'TheSeer\\Tokenizer\\TokenCollectionException' => __DIR__ . '/..' . '/theseer/tokenizer/src/TokenCollectionException.php',
         'TheSeer\\Tokenizer\\Tokenizer' => __DIR__ . '/..' . '/theseer/tokenizer/src/Tokenizer.php',
         'TheSeer\\Tokenizer\\XMLSerializer' => __DIR__ . '/..' . '/theseer/tokenizer/src/XMLSerializer.php',
+        'Viralvibes\\Request' => __DIR__ . '/../..' . '/models/php/services/Request.php',
         'Viralvibes\\Test\\courseDownloadTest' => __DIR__ . '/../..' . '/tests/unit/php/services/courseDownloadTest.php',
         'Viralvibes\\Test\\courseSearchTest' => __DIR__ . '/../..' . '/tests/unit/php/services/courseSearchTest.php',
         'Viralvibes\\Test\\courseViewTest' => __DIR__ . '/../..' . '/tests/unit/php/services/courseViewTest.php',
@@ -653,9 +654,16 @@ class ComposerStaticInitb2bb525fd92cdfb53c6ad5c785ca6a8b
         'Viralvibes\\download\\course\\courseView' => __DIR__ . '/../..' . '/models/php/services/courseView.php',
         'Viralvibes\\download\\course\\downloadLink' => __DIR__ . '/../..' . '/models/php/services/courseDownload.php',
         'Viralvibes\\pagination' => __DIR__ . '/../..' . '/models/php/services/pagination.php',
+        'controller' => __DIR__ . '/../..' . '/controller/php/controller.php',
         'defaultController' => __DIR__ . '/../..' . '/controller/php/defaultController.php',
+        'downloadController' => __DIR__ . '/../..' . '/controller/php/downloadController.php',
+        'downloadHomeModel' => __DIR__ . '/../..' . '/models/php/downloadHomeModel.php',
+        'downloadHomeView' => __DIR__ . '/../..' . '/views/php/downloadHomeView.php',
+        'downloadSearchModel' => __DIR__ . '/../..' . '/models/php/downloadSearchModel.php',
+        'downloadSearchView' => __DIR__ . '/../..' . '/views/php/downloadSearchView.php',
         'homePageModel' => __DIR__ . '/../..' . '/models/php/homePageModel.php',
         'homePageView' => __DIR__ . '/../..' . '/views/php/homePageView.php',
+        'views' => __DIR__ . '/../..' . '/views/php/views.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

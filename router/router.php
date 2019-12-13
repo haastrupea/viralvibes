@@ -1,4 +1,7 @@
 <?php
+
+use Viralvibes\Request;
+
 class router{
     private $requestMethods=['POST','GET'];//valid http request methods
 
@@ -21,6 +24,7 @@ class router{
         //use regex form of the route as they key of route dictionary
         $this->{strtolower($name)}[$routeKey]['method']=$method;//method to call when a route matches a uri
         $this->{strtolower($name)}[$routeKey]['route']=$route;// the original route specified
+        $this->{strtolower($name)}[$routeKey]['request']=new Request;// the original route specified
     }
 
     /**
@@ -87,10 +91,10 @@ class router{
      * @param Array $routeDict
      * @return Array $routeDict the matching route dictionary
      */
-    protected function selectRoute(array $routeDict){
-        return array_filter($routeDict,function($key){
+    protected function selectRoute($routeDict){
+        return !is_null($routeDict)?array_filter($routeDict,function($key){
             return preg_match("/^$key$/",$this->getUri());
-        },ARRAY_FILTER_USE_KEY);
+        },ARRAY_FILTER_USE_KEY):false;
     }
 
     /**
@@ -115,12 +119,16 @@ class router{
      */
     protected function resolved(){
         $requestMethod=strtolower($_SERVER['REQUEST_METHOD']);//fetch current request method
-        $routeDict=$this->selectRoute($this->{$requestMethod});//select the route dictionary that match the uri given
+        if(isset($this->{$requestMethod})){
 
-        if(!empty($routeDict)){
-            $key=array_keys($routeDict)[0];//extract the key of the selected dictionary which is a regular expression
-            $args=$this->getMethodArgs($key);//extract param in url base on uri given into array
-            call_user_func($routeDict[$key]['method'],$args);//call method with args
+            $routeDict=$this->selectRoute($this->{$requestMethod});//select the route dictionary that match the uri given
+    
+            if(!empty($routeDict)){
+                $key=array_keys($routeDict)[0];//extract the key of the selected dictionary which is a regular expression
+                $args=$this->getMethodArgs($key);//extract param in url base on uri given into array
+                $request=$routeDict[$key]['request'];
+                call_user_func($routeDict[$key]['method'],$request,$args);//call method with args
+            }
         }
     }
 
