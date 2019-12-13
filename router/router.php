@@ -1,5 +1,4 @@
 <?php
-
 class router{
     private $requestMethods=['POST','GET'];//valid http request methods
 
@@ -95,7 +94,8 @@ class router{
     }
 
     /**
-     * extract parameter in request uri base on route given and pass it into the callback attached to the route as arguments
+     * extract parameter in request uri base on route given and pass it into the callback attached to the route as arguments.
+     * @NOTE Numbers can not be use as parameter in the router, if used, they will not be added as arguments to be passed on to the callback 
      * @param String $routeRegex this is the key of routeDict(regex that was generated base on the given route)
      * @return Array $args associative array of all the arguments as extracted from the uri
      */
@@ -104,7 +104,7 @@ class router{
         preg_match("/^$routeRegex$/",$this->getUri(),$result);
 
         return array_filter($result,function($key){
-            return preg_match("/[\D]/",$key);
+            return preg_match("/^[\D]/",$key);
         },ARRAY_FILTER_USE_KEY);
     }
     
@@ -116,9 +116,12 @@ class router{
     protected function resolved(){
         $requestMethod=strtolower($_SERVER['REQUEST_METHOD']);//fetch current request method
         $routeDict=$this->selectRoute($this->{$requestMethod});//select the route dictionary that match the uri given
-        $key=array_keys($routeDict)[0];//extract the key of the selected dictionary which is a regular expression
-        $args=$this->getMethodArgs($key);//extract param in url base on uri given into array
-        call_user_func($routeDict[$key]['method'],$args);//call method with args
+
+        if(!empty($routeDict)){
+            $key=array_keys($routeDict)[0];//extract the key of the selected dictionary which is a regular expression
+            $args=$this->getMethodArgs($key);//extract param in url base on uri given into array
+            call_user_func($routeDict[$key]['method'],$args);//call method with args
+        }
     }
 
     /**

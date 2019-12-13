@@ -1,6 +1,6 @@
 <?php
-include_once 'controller/php/controllersLoader.php';
-include_once 'models/php/modelsLoader.php';
+// include_once 'controller/php/controllersLoader.php';
+// include_once 'models/php/modelsLoader.php';
 
 
 /**
@@ -29,16 +29,46 @@ include_once 'models/php/modelsLoader.php';
 
 $app=new router;
 
-$app->get('/download[/{action}][/{cat}][/{q}]',function($args){
+$app->get('/[home][/{section}]',function($args){
 
-    // $action=$args['action'];
-    // $cat=$args['cat'];
-    // $query=$args['q'];
+    $section[0]=isset($args['section'])?$args['section']:"";
 
-    // echo "Action=".$action;
-    // echo "<br>";
-    // echo "Category=".$cat;
-    // echo "<br>";
-    // echo "Search query=".$query;
-});
+
+    $controller=new defaultController();
+
+    $controller->run('home',$section);
+
+});//home page
+
+//services index start
+$app->get('/download[/home]',function(){
+    echo "welcome to download home page <br>";
+    echo "via get";
+});//download index page
+
+$app->get('/housing[/home]',function(){
+    echo "welcome to housing home page <br>";
+    echo "via get";
+});//housing index page
+
+$app->get('/news[/home]',function(){
+    echo "welcome to news home page <br>";
+    echo "via get";
+});//news index page
+
+//services index end
+
+
+$app->get('/download/search[/{cat}]/{q}',function($args){
+
+    $cat=isset($args['cat'])?$args['cat']:"";
+    $query=isset($args['q'])?$args['q']:"";
+
+    echo "Action=Search";
+    echo "<br>";
+    echo "Category=".$cat;
+    echo "<br>";
+    echo "Search query=".$query;
+});//download with action
+
 $app->run();

@@ -3,7 +3,7 @@
         "phpunit/phpunit": "^8"
     },
     "autoload": {
-        "classmap": ["models/php/"]
+        "classmap": ["models/php/","views/php/","controller/php/"]
     },
     "autoload-dev": {
         "classmap": ["tests/unit/php/"]
