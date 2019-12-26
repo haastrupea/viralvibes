@@ -7,12 +7,11 @@
     <title><?php echo $officialName ?> Home page</title>
 </head>
 <body>
+     <h1><?php echo $officialName;?></h1>
+    <p><?php echo  $renderSection; ?></p>
+    <img src="<?php echo $logoImg ?>" alt="<?php echo $officialName?> logo">
     
 </body>
 </html>
-<h1><?php echo $officialName;?></h1>
-<p><?php echo  $renderSection; ?></p>
-
-<img src="<?php echo $logoImg ?>" alt="<?php echo $officialName?> logo">
 
 
