@@ -11,7 +11,7 @@ class homePageModel{
     
     public function getLogo()
     {
-        return "/assets/imgs/logo.svg";
+        return "/template/sharedAssets/imgs/logo.svg";
     }
     public function getPageSection()
     {

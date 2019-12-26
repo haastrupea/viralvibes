@@ -10,7 +10,7 @@ class homePageView implements views{
         $renderSection=$this->renderSection($section);//render page section
         
         //load template
-       include_once 'template/homePage.php';
+       include_once 'template/home/homePage.php';
 
     }
 
